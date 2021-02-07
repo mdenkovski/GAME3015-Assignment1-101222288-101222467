@@ -222,7 +222,9 @@ bool Game::Initialize()
 	// so we have to query this information.
 	mCbvSrvDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-	mCamera.SetPosition(0.8f * scaleFactor, 0.3 * scaleFactor, 1.0f * scaleFactor);
+	//mCamera.SetPosition(0.8f * scaleFactor, 0.3 * scaleFactor, 1.0f * scaleFactor);
+	mCamera.SetPosition(0 * scaleFactor, 5 * scaleFactor, 0 * scaleFactor);
+	mCamera.Pitch(3.14/2);
 
 	mWaves = std::make_unique<Waves>(40, 80, 0.25, 0.03f, 1.0, 0.2f);
 
@@ -555,7 +557,7 @@ void Game::OnKeyboardInput(const GameTimer& gt)
 		
 
 	mCamera.UpdateViewMatrix();
-	mCamera.SetPositionY(0.3 * scaleFactor);
+	//mCamera.SetPositionY(0.3 * scaleFactor);
 }
 //
 //void Game::UpdateCamera(const GameTimer& gt)
@@ -694,7 +696,7 @@ void Game::LoadTextures()
 {
 	auto grassTex = std::make_unique<Texture>();
 	grassTex->Name = "grassTex";
-	grassTex->Filename = L"../../Textures/grass.dds";
+	grassTex->Filename = L"../../Textures/Desert.dds";
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
 		mCommandList.Get(), grassTex->Filename.c_str(),
 		grassTex->Resource, grassTex->UploadHeap));
@@ -1234,7 +1236,7 @@ void Game::BuildRenderItems()
 
 	// land for the city
 	auto groundRitem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&groundRitem->World, XMMatrixScaling(1.0f * scaleFactor, 1.0f * scaleFactor, 1.0f * scaleFactor) * XMMatrixTranslation(0.0f * scaleFactor, -0.1 * scaleFactor, 5.0f * scaleFactor));/// can choose your scaling here
+	XMStoreFloat4x4(&groundRitem->World, XMMatrixScaling(1.0f * scaleFactor, 1.0f * scaleFactor, 1.0f * scaleFactor) * XMMatrixTranslation(0.0f * scaleFactor, 0 * scaleFactor, 0 * scaleFactor));/// can choose your scaling here
 	XMStoreFloat4x4(&groundRitem->TexTransform, XMMatrixScaling(10.0f, 10.0f, 10.0f));
 	groundRitem->ObjCBIndex = objCBIndex++;
 	groundRitem->Mat = mMaterials["grass"].get();
