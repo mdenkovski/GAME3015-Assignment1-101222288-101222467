@@ -694,13 +694,13 @@ void Game::UpdateMainPassCB(const GameTimer& gt)
 
 void Game::LoadTextures()
 {
-	auto grassTex = std::make_unique<Texture>();
-	grassTex->Name = "grassTex";
-	grassTex->Filename = L"../../Textures/Desert.dds";
+	auto backgroundTex = std::make_unique<Texture>();
+	backgroundTex->Name = "BackgroundTex";
+	backgroundTex->Filename = L"../../Textures/Desert.dds";
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), grassTex->Filename.c_str(),
-		grassTex->Resource, grassTex->UploadHeap));
-	mTextures[grassTex->Name] = std::move(grassTex);
+		mCommandList.Get(), backgroundTex->Filename.c_str(),
+		backgroundTex->Resource, backgroundTex->UploadHeap));
+	mTextures[backgroundTex->Name] = std::move(backgroundTex);
 
 	//auto waterTex = std::make_unique<Texture>();
 	//waterTex->Name = "waterTex";
@@ -833,7 +833,7 @@ void Game::BuildDescriptorHeaps()
 	//
 	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
-	auto grassTex = mTextures["grassTex"]->Resource;
+	auto backgroundTex = mTextures["BackgroundTex"]->Resource;
 	//auto waterTex = mTextures["waterTex"]->Resource;
 	//auto roofTex = mTextures["roofTex"]->Resource;
 	//auto buildingTex = mTextures["buildingTex"]->Resource;
@@ -847,11 +847,11 @@ void Game::BuildDescriptorHeaps()
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format = grassTex->GetDesc().Format;
+	srvDesc.Format = backgroundTex->GetDesc().Format;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.MipLevels = -1;
-	md3dDevice->CreateShaderResourceView(grassTex.Get(), &srvDesc, hDescriptor);
+	md3dDevice->CreateShaderResourceView(backgroundTex.Get(), &srvDesc, hDescriptor);
 
 	// next descriptor
 	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
