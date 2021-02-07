@@ -119,12 +119,17 @@ bool Game::Initialize()
 		
     // Reset the command list to prep for initialization commands.
     ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
- 
+    
+    // to do load textures
+
+    // build descriptor heaps to allow new texture
     BuildDescriptorHeaps();
 	BuildConstantBuffers();
     BuildRootSignature();
     BuildShadersAndInputLayout();
     BuildBoxGeometry();
+    // build mats
+    // render items
     BuildPSO();
 
     // Execute the initialization commands.
