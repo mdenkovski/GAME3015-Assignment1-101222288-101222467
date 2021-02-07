@@ -1,5 +1,5 @@
 //***************************************************************************************
-// Game.cpp 
+// TreeBillboardsApp.cpp 
 //***************************************************************************************
 
 #include "../../Common/d3dApp.h"
@@ -63,13 +63,13 @@ enum class RenderLayer : int
 	Count
 };
 
-class Game : public D3DApp
+class TreeBillboardsApp : public D3DApp
 {
 public:
-	Game(HINSTANCE hInstance);
-	Game(const Game& rhs) = delete;
-	Game& operator=(const Game& rhs) = delete;
-	~Game();
+	TreeBillboardsApp(HINSTANCE hInstance);
+	TreeBillboardsApp(const TreeBillboardsApp& rhs) = delete;
+	TreeBillboardsApp& operator=(const TreeBillboardsApp& rhs) = delete;
+	~TreeBillboardsApp();
 
 	virtual bool Initialize()override;
 
@@ -185,7 +185,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 	try
 	{
-		Game theApp(hInstance);
+		TreeBillboardsApp theApp(hInstance);
 		if (!theApp.Initialize())
 			return 0;
 
@@ -198,18 +198,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	}
 }
 
-Game::Game(HINSTANCE hInstance)
+TreeBillboardsApp::TreeBillboardsApp(HINSTANCE hInstance)
 	: D3DApp(hInstance)
 {
 }
 
-Game::~Game()
+TreeBillboardsApp::~TreeBillboardsApp()
 {
 	if (md3dDevice != nullptr)
 		FlushCommandQueue();
 }
 
-bool Game::Initialize()
+bool TreeBillboardsApp::Initialize()
 {
 	srand((unsigned)time(0));
 	if (!D3DApp::Initialize())
@@ -267,7 +267,7 @@ bool Game::Initialize()
 	return true;
 }
 
-void Game::OnResize()
+void TreeBillboardsApp::OnResize()
 {
 	D3DApp::OnResize();
 
@@ -278,7 +278,7 @@ void Game::OnResize()
 	mCamera.SetLens(0.25f*MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
 }
 
-void Game::Update(const GameTimer& gt)
+void TreeBillboardsApp::Update(const GameTimer& gt)
 {
 	OnKeyboardInput(gt);
 	//UpdateCamera(gt);
@@ -304,7 +304,7 @@ void Game::Update(const GameTimer& gt)
 	UpdateWaves(gt);
 }
 
-void Game::Draw(const GameTimer& gt)
+void TreeBillboardsApp::Draw(const GameTimer& gt)
 {
 	auto cmdListAlloc = mCurrFrameResource->CmdListAlloc;
 
@@ -373,7 +373,7 @@ void Game::Draw(const GameTimer& gt)
 	mCommandQueue->Signal(mFence.Get(), mCurrentFence);
 }
 
-void Game::OnMouseDown(WPARAM btnState, int x, int y)
+void TreeBillboardsApp::OnMouseDown(WPARAM btnState, int x, int y)
 {
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
@@ -381,12 +381,12 @@ void Game::OnMouseDown(WPARAM btnState, int x, int y)
 	SetCapture(mhMainWnd);
 }
 
-void Game::OnMouseUp(WPARAM btnState, int x, int y)
+void TreeBillboardsApp::OnMouseUp(WPARAM btnState, int x, int y)
 {
 	ReleaseCapture();
 }
 
-void Game::OnMouseMove(WPARAM btnState, int x, int y)
+void TreeBillboardsApp::OnMouseMove(WPARAM btnState, int x, int y)
 {
 	//if ((btnState & MK_LBUTTON) != 0)
 	//{
@@ -431,7 +431,7 @@ void Game::OnMouseMove(WPARAM btnState, int x, int y)
 	mLastMousePos.y = y;
 }
 
-void Game::OnKeyboardInput(const GameTimer& gt)
+void TreeBillboardsApp::OnKeyboardInput(const GameTimer& gt)
 {
 
 	const float dt = gt.DeltaTime();
@@ -568,7 +568,7 @@ void Game::OnKeyboardInput(const GameTimer& gt)
 	mCamera.SetPositionY(0.3 * scaleFactor);
 }
 //
-//void Game::UpdateCamera(const GameTimer& gt)
+//void TreeBillboardsApp::UpdateCamera(const GameTimer& gt)
 //{
 //	// Convert Spherical to Cartesian coordinates.
 //	mEyePos.x = mRadius * sinf(mPhi) * cosf(mTheta);
@@ -584,7 +584,7 @@ void Game::OnKeyboardInput(const GameTimer& gt)
 //	XMStoreFloat4x4(&mView, view);
 //}
 
-void Game::AnimateMaterials(const GameTimer& gt)
+void TreeBillboardsApp::AnimateMaterials(const GameTimer& gt)
 {
 	// Scroll the water material texture coordinates.
 	auto waterMat = mMaterials["water"].get();
@@ -608,7 +608,7 @@ void Game::AnimateMaterials(const GameTimer& gt)
 	waterMat->NumFramesDirty = gNumFrameResources;
 }
 
-void Game::UpdateObjectCBs(const GameTimer& gt)
+void TreeBillboardsApp::UpdateObjectCBs(const GameTimer& gt)
 {
 	auto currObjectCB = mCurrFrameResource->ObjectCB.get();
 	for (auto& e : mAllRitems)
@@ -632,7 +632,7 @@ void Game::UpdateObjectCBs(const GameTimer& gt)
 	}
 }
 
-void Game::UpdateMaterialCBs(const GameTimer& gt)
+void TreeBillboardsApp::UpdateMaterialCBs(const GameTimer& gt)
 {
 	auto currMaterialCB = mCurrFrameResource->MaterialCB.get();
 	for (auto& e : mMaterials)
@@ -658,7 +658,7 @@ void Game::UpdateMaterialCBs(const GameTimer& gt)
 	}
 }
 
-void Game::UpdateMainPassCB(const GameTimer& gt)
+void TreeBillboardsApp::UpdateMainPassCB(const GameTimer& gt)
 {
 	XMMATRIX view = mCamera.GetView();
 	XMMATRIX proj = mCamera.GetProj();
@@ -700,7 +700,7 @@ void Game::UpdateMainPassCB(const GameTimer& gt)
 	currPassCB->CopyData(0, mMainPassCB);
 }
 
-void Game::UpdateWaves(const GameTimer& gt)
+void TreeBillboardsApp::UpdateWaves(const GameTimer& gt)
 {
 	// Every quarter second, generate a random wave.
 	static float t_base = 0.0f;
@@ -740,7 +740,7 @@ void Game::UpdateWaves(const GameTimer& gt)
 	mWavesRitem->Geo->VertexBufferGPU = currWavesVB->Resource();
 }
 
-void Game::LoadTextures()
+void TreeBillboardsApp::LoadTextures()
 {
 	auto grassTex = std::make_unique<Texture>();
 	grassTex->Name = "grassTex";
@@ -825,7 +825,7 @@ void Game::LoadTextures()
 
 }
 
-void Game::BuildRootSignature()
+void TreeBillboardsApp::BuildRootSignature()
 {
 	CD3DX12_DESCRIPTOR_RANGE texTable;
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
@@ -865,7 +865,7 @@ void Game::BuildRootSignature()
 		IID_PPV_ARGS(mRootSignature.GetAddressOf())));
 }
 
-void Game::BuildDescriptorHeaps()
+void TreeBillboardsApp::BuildDescriptorHeaps()
 {
 	//
 	// Create the SRV heap.
@@ -965,7 +965,7 @@ void Game::BuildDescriptorHeaps()
 
 }
 
-void Game::BuildShadersAndInputLayouts()
+void TreeBillboardsApp::BuildShadersAndInputLayouts()
 {
 	const D3D_SHADER_MACRO defines[] =
 	{
@@ -1002,7 +1002,7 @@ void Game::BuildShadersAndInputLayouts()
 	};
 }
 
-void Game::BuildLandGeometry()
+void TreeBillboardsApp::BuildLandGeometry()
 {
 
 	GeometryGenerator geoGen;
@@ -1064,7 +1064,7 @@ void Game::BuildLandGeometry()
 	mGeometries[geo->Name] = std::move(geo);
 }
 
-void Game::BuildCityLandGeometry()
+void TreeBillboardsApp::BuildCityLandGeometry()
 {
 
 	GeometryGenerator geoGen;
@@ -1123,7 +1123,7 @@ void Game::BuildCityLandGeometry()
 	mGeometries[geo->Name] = std::move(geo);
 }
 
-void Game::BuildGroundGeometry()
+void TreeBillboardsApp::BuildGroundGeometry()
 {
 	GeometryGenerator geoGen;
 	GeometryGenerator::MeshData ground = geoGen.CreateBox(20, 0.2, 20, 1);
@@ -1174,7 +1174,7 @@ void Game::BuildGroundGeometry()
 	mGeometries[geo->Name] = std::move(geo);
 }
 
-void Game::BuildCNTowerGeometry()
+void TreeBillboardsApp::BuildCNTowerGeometry()
 {
 	GeometryGenerator geoGen;
 
@@ -1327,7 +1327,7 @@ void Game::BuildCNTowerGeometry()
 	mGeometries[geo->Name] = std::move(geo);
 }
 
-void Game::BuildRogersCenter()
+void TreeBillboardsApp::BuildRogersCenter()
 {
 	GeometryGenerator geoGen;
 
@@ -1421,7 +1421,7 @@ void Game::BuildRogersCenter()
 
 }
 
-void Game::BuildBuildings()
+void TreeBillboardsApp::BuildBuildings()
 {
 
 	GeometryGenerator geoGen;
@@ -1533,7 +1533,7 @@ void Game::BuildBuildings()
 	mGeometries[geo->Name] = std::move(geo);
 }
 
-void Game::BuildWavesGeometry()
+void TreeBillboardsApp::BuildWavesGeometry()
 {
 	std::vector<std::uint16_t> indices(3 * mWaves->TriangleCount()); // 3 indices per face
 	assert(mWaves->VertexCount() < 0x0000ffff);
@@ -1589,7 +1589,7 @@ void Game::BuildWavesGeometry()
 	mGeometries["waterGeo"] = std::move(geo);
 }
 
-void Game::BuildBoxGeometry()
+void TreeBillboardsApp::BuildBoxGeometry()
 {
 	GeometryGenerator geoGen;
 	GeometryGenerator::MeshData box = geoGen.CreateBox(8.0f, 8.0f, 8.0f, 3);
@@ -1638,7 +1638,7 @@ void Game::BuildBoxGeometry()
 	mGeometries["boxGeo"] = std::move(geo);
 }
 
-void Game::BuildDiamondGeometry()
+void TreeBillboardsApp::BuildDiamondGeometry()
 {
 	GeometryGenerator geoGen;
 	GeometryGenerator::MeshData diamond = geoGen.CreateDiamond(1.0f, 0.5f, 8.0f);
@@ -1687,7 +1687,7 @@ void Game::BuildDiamondGeometry()
 	mGeometries[geo->Name] = std::move(geo);
 }
 
-void Game::BuildTreeSpritesGeometry()
+void TreeBillboardsApp::BuildTreeSpritesGeometry()
 {
 	//step5
 	struct TreeSpriteVertex
@@ -1780,7 +1780,7 @@ void Game::BuildTreeSpritesGeometry()
 	mGeometries["treeSpritesGeo"] = std::move(geo);
 }
 
-void Game::BuildPSOs()
+void TreeBillboardsApp::BuildPSOs()
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
 
@@ -1880,7 +1880,7 @@ void Game::BuildPSOs()
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&treeSpritePsoDesc, IID_PPV_ARGS(&mPSOs["treeSprites"])));
 }
 
-void Game::BuildFrameResources()
+void TreeBillboardsApp::BuildFrameResources()
 {
 	for (int i = 0; i < gNumFrameResources; ++i)
 	{
@@ -1889,7 +1889,7 @@ void Game::BuildFrameResources()
 	}
 }
 
-void Game::BuildMaterials()
+void TreeBillboardsApp::BuildMaterials()
 {
 	int matIndex = 0;
 	auto grass = std::make_unique<Material>();
@@ -1988,7 +1988,7 @@ void Game::BuildMaterials()
 
 }
 
-void Game::BuildRenderPyra(float x, float y, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex)
+void TreeBillboardsApp::BuildRenderPyra(float x, float y, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex)
 {
 	auto Pyramid1Ritem = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&Pyramid1Ritem->World, XMMatrixScaling(scalex * scaleFactor, scaley * scaleFactor, scalez * scaleFactor) * XMMatrixTranslation(x * scaleFactor, y * scaleFactor, z * scaleFactor));/// can choose your scaling here
@@ -2003,7 +2003,7 @@ void Game::BuildRenderPyra(float x, float y, float z, float scalex, float scaley
 	mAllRitems.push_back(std::move(Pyramid1Ritem));
 }
 
-void Game::BuildRenderFlatTopPyra(float x, float y, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex)
+void TreeBillboardsApp::BuildRenderFlatTopPyra(float x, float y, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex)
 {
 	auto FlatPyramid2Ritem = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&FlatPyramid2Ritem->World, XMMatrixScaling(scalex * scaleFactor, scaley * scaleFactor, scalez * scaleFactor) * XMMatrixTranslation(x * scaleFactor, y * scaleFactor, z * scaleFactor));/// can choose your scaling here
@@ -2018,7 +2018,7 @@ void Game::BuildRenderFlatTopPyra(float x, float y, float z, float scalex, float
 	mAllRitems.push_back(std::move(FlatPyramid2Ritem));
 }
 
-void Game::BuildRenderBuilding(float x, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex)
+void TreeBillboardsApp::BuildRenderBuilding(float x, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex)
 {
 	auto Building1Ritem = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&Building1Ritem->World, XMMatrixScaling(scalex * scaleFactor, scaley * scaleFactor, scalez * scaleFactor) * XMMatrixTranslation(x * scaleFactor, scaley / 2.0f * scaleFactor, z * scaleFactor));/// can choose your scaling here
@@ -2082,7 +2082,7 @@ void Game::BuildRenderBuilding(float x, float z, float scalex, float scaley, flo
 	
 }
 
-void Game::BuildRenderRoad(float x, float z, float length, float width, float angle, UINT& ObjCBIndex)
+void TreeBillboardsApp::BuildRenderRoad(float x, float z, float length, float width, float angle, UINT& ObjCBIndex)
 {
 	auto Building1Ritem = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&Building1Ritem->World, XMMatrixScaling(width * scaleFactor, 0.02 * scaleFactor, length * scaleFactor) * XMMatrixRotationY(angle * 0.0174533) * XMMatrixTranslation(x * scaleFactor, 0.01 * scaleFactor, z * scaleFactor));/// can choose your scaling here
@@ -2098,7 +2098,7 @@ void Game::BuildRenderRoad(float x, float z, float length, float width, float an
 	mAllRitems.push_back(std::move(Building1Ritem));
 }
 
-void Game::BuildRenderIntersection(float x, float z, float scalex, float scalez, UINT& ObjCBIndex)
+void TreeBillboardsApp::BuildRenderIntersection(float x, float z, float scalex, float scalez, UINT& ObjCBIndex)
 {
 	auto Building1Ritem = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&Building1Ritem->World, XMMatrixScaling(scalex * scaleFactor, 0.03 * scaleFactor, scalez * scaleFactor) * XMMatrixTranslation(x * scaleFactor, 0.01 * scaleFactor, z * scaleFactor));/// can choose your scaling here
@@ -2115,7 +2115,7 @@ void Game::BuildRenderIntersection(float x, float z, float scalex, float scalez,
 
 }
 
-void Game::BuildRenderItems()
+void TreeBillboardsApp::BuildRenderItems()
 {
 	UINT objCBIndex = 0;
 
@@ -2826,7 +2826,7 @@ void Game::BuildRenderItems()
 
 }
 
-void Game::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
+void TreeBillboardsApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
 {
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 	UINT matCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
@@ -2858,7 +2858,7 @@ void Game::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector
 	}
 }
 
-std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> Game::GetStaticSamplers()
+std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> TreeBillboardsApp::GetStaticSamplers()
 {
 	// Applications usually only need a handful of samplers.  So just define them all up front
 	// and keep them available as part of the root signature.  
@@ -2915,12 +2915,12 @@ std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> Game::GetStaticSamplers()
 		anisotropicWrap, anisotropicClamp };
 }
 
-float Game::GetHillsHeight(float x, float z)const
+float TreeBillboardsApp::GetHillsHeight(float x, float z)const
 {
 	return 0.3f * (z * sinf(0.1f * x) + x * cosf(0.1f * z));
 }
 
-XMFLOAT3 Game::GetHillsNormal(float x, float z)const
+XMFLOAT3 TreeBillboardsApp::GetHillsNormal(float x, float z)const
 {
 	// n = (-df/dx, 1, -df/dz)
 	XMFLOAT3 n(
