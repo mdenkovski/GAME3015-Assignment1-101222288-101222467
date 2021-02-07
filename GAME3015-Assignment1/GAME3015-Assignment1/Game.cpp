@@ -95,27 +95,27 @@ private:
 	void BuildDescriptorHeaps();
 	void BuildShadersAndInputLayouts();
 
-	void BuildLandGeometry();
+	//void BuildLandGeometry();
 
-	void BuildCityLandGeometry();
+	//void BuildCityLandGeometry();
 	void BuildGroundGeometry();
-	void BuildCNTowerGeometry();
-	void BuildRogersCenter();
-	void BuildBuildings();
-	void BuildWavesGeometry();
-	void BuildBoxGeometry();
-	void BuildDiamondGeometry();
-	void BuildTreeSpritesGeometry();
+	//void BuildCNTowerGeometry();
+	//void BuildRogersCenter();
+	//void BuildBuildings();
+	//void BuildWavesGeometry();
+	//void BuildBoxGeometry();
+	//void BuildDiamondGeometry();
+	//void BuildTreeSpritesGeometry();
 
 
 	void BuildPSOs();
 	void BuildFrameResources();
 	void BuildMaterials();
-	void BuildRenderPyra(float x, float y, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex);
-	void BuildRenderFlatTopPyra(float x, float y, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex);
-	void BuildRenderBuilding(float x, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex);
-	void BuildRenderRoad(float x, float z, float length,float width, float angle, UINT& ObjCBIndex);
-	void BuildRenderIntersection(float x, float z, float scalex, float scalez, UINT& ObjCBIndex);
+	//void BuildRenderPyra(float x, float y, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex);
+	//void BuildRenderFlatTopPyra(float x, float y, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex);
+	//void BuildRenderBuilding(float x, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex);
+	//void BuildRenderRoad(float x, float z, float length,float width, float angle, UINT& ObjCBIndex);
+	//void BuildRenderIntersection(float x, float z, float scalex, float scalez, UINT& ObjCBIndex);
 	void BuildRenderItems();
 	void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
 
@@ -236,16 +236,7 @@ bool Game::Initialize()
 	BuildShadersAndInputLayouts();
 
 	// Step 3 Build the geometry for your shapes
-	//BuildLandGeometry();
-	//BuildCityLandGeometry();
 	BuildGroundGeometry();
-	//BuildCNTowerGeometry();
-	//BuildRogersCenter();
-	//BuildBuildings();
-	//BuildWavesGeometry();
-	//BuildBoxGeometry();
-	//BuildDiamondGeometry();
-	//BuildTreeSpritesGeometry();
 
 	// Step 4 Build the material
 	BuildMaterials();
@@ -297,11 +288,10 @@ void Game::Update(const GameTimer& gt)
 		CloseHandle(eventHandle);
 	}
 
-	AnimateMaterials(gt);
+	//AnimateMaterials(gt);
 	UpdateObjectCBs(gt);
 	UpdateMaterialCBs(gt);
 	UpdateMainPassCB(gt);
-	//UpdateWaves(gt);
 }
 
 void Game::Draw(const GameTimer& gt)
@@ -343,8 +333,8 @@ void Game::Draw(const GameTimer& gt)
 	mCommandList->SetPipelineState(mPSOs["alphaTested"].Get());
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::AlphaTested]);
 
-	mCommandList->SetPipelineState(mPSOs["treeSprites"].Get());
-	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::AlphaTestedTreeSprites]);
+	/*mCommandList->SetPipelineState(mPSOs["treeSprites"].Get());
+	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::AlphaTestedTreeSprites]);*/
 
 	mCommandList->SetPipelineState(mPSOs["transparent"].Get());
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Transparent]);
@@ -584,29 +574,29 @@ void Game::OnKeyboardInput(const GameTimer& gt)
 //	XMStoreFloat4x4(&mView, view);
 //}
 
-void Game::AnimateMaterials(const GameTimer& gt)
-{
-	// Scroll the water material texture coordinates.
-	auto waterMat = mMaterials["water"].get();
-
-	float& tu = waterMat->MatTransform(3, 0);
-	float& tv = waterMat->MatTransform(3, 1);
-
-	tu += 0.1f * gt.DeltaTime();
-	tv += 0.02f * gt.DeltaTime();
-
-	if (tu >= 1.0f)
-		tu -= 1.0f;
-
-	if (tv >= 1.0f)
-		tv -= 1.0f;
-
-	waterMat->MatTransform(3, 0) = tu;
-	waterMat->MatTransform(3, 1) = tv;
-
-	// Material has changed, so need to update cbuffer.
-	waterMat->NumFramesDirty = gNumFrameResources;
-}
+//void Game::AnimateMaterials(const GameTimer& gt)
+//{
+//	// Scroll the water material texture coordinates.
+//	auto waterMat = mMaterials["water"].get();
+//
+//	float& tu = waterMat->MatTransform(3, 0);
+//	float& tv = waterMat->MatTransform(3, 1);
+//
+//	tu += 0.1f * gt.DeltaTime();
+//	tv += 0.02f * gt.DeltaTime();
+//
+//	if (tu >= 1.0f)
+//		tu -= 1.0f;
+//
+//	if (tv >= 1.0f)
+//		tv -= 1.0f;
+//
+//	waterMat->MatTransform(3, 0) = tu;
+//	waterMat->MatTransform(3, 1) = tv;
+//
+//	// Material has changed, so need to update cbuffer.
+//	waterMat->NumFramesDirty = gNumFrameResources;
+//}
 
 void Game::UpdateObjectCBs(const GameTimer& gt)
 {
@@ -710,77 +700,77 @@ void Game::LoadTextures()
 		grassTex->Resource, grassTex->UploadHeap));
 	mTextures[grassTex->Name] = std::move(grassTex);
 
-	auto waterTex = std::make_unique<Texture>();
-	waterTex->Name = "waterTex";
-	waterTex->Filename = L"../../Textures/water1.dds";
-	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), waterTex->Filename.c_str(),
-		waterTex->Resource, waterTex->UploadHeap));
-	mTextures[waterTex->Name] = std::move(waterTex);
+	//auto waterTex = std::make_unique<Texture>();
+	//waterTex->Name = "waterTex";
+	//waterTex->Filename = L"../../Textures/water1.dds";
+	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	//	mCommandList.Get(), waterTex->Filename.c_str(),
+	//	waterTex->Resource, waterTex->UploadHeap));
+	//mTextures[waterTex->Name] = std::move(waterTex);
 
-	auto roofTex = std::make_unique<Texture>();
-	roofTex->Name = "roofTex";
-	roofTex->Filename = L"../../Textures/Roof.dds";
-	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), roofTex->Filename.c_str(),
-		roofTex->Resource, roofTex->UploadHeap));
-	mTextures[roofTex->Name] = std::move(roofTex);
+	//auto roofTex = std::make_unique<Texture>();
+	//roofTex->Name = "roofTex";
+	//roofTex->Filename = L"../../Textures/Roof.dds";
+	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	//	mCommandList.Get(), roofTex->Filename.c_str(),
+	//	roofTex->Resource, roofTex->UploadHeap));
+	//mTextures[roofTex->Name] = std::move(roofTex);
 
-	auto buildingTex = std::make_unique<Texture>();
-	buildingTex->Name = "buildingTex";
-	buildingTex->Filename = L"../../Textures/building.dds";
-	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), buildingTex->Filename.c_str(),
-		buildingTex->Resource, buildingTex->UploadHeap));
-	mTextures[buildingTex->Name] = std::move(buildingTex);
+	//auto buildingTex = std::make_unique<Texture>();
+	//buildingTex->Name = "buildingTex";
+	//buildingTex->Filename = L"../../Textures/building.dds";
+	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	//	mCommandList.Get(), buildingTex->Filename.c_str(),
+	//	buildingTex->Resource, buildingTex->UploadHeap));
+	//mTextures[buildingTex->Name] = std::move(buildingTex);
 
-	auto concreteTex = std::make_unique<Texture>();
-	concreteTex->Name = "concreteTex";
-	concreteTex->Filename = L"../../Textures/concrete.dds";
-	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), concreteTex->Filename.c_str(),
-		concreteTex->Resource, concreteTex->UploadHeap));
-	mTextures[concreteTex->Name] = std::move(concreteTex);
+	//auto concreteTex = std::make_unique<Texture>();
+	//concreteTex->Name = "concreteTex";
+	//concreteTex->Filename = L"../../Textures/concrete.dds";
+	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	//	mCommandList.Get(), concreteTex->Filename.c_str(),
+	//	concreteTex->Resource, concreteTex->UploadHeap));
+	//mTextures[concreteTex->Name] = std::move(concreteTex);
 
-	auto brickTex = std::make_unique<Texture>();
-	brickTex->Name = "brickTex";
-	brickTex->Filename = L"../../Textures/bricks.dds";
-	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), brickTex->Filename.c_str(),
-		brickTex->Resource, brickTex->UploadHeap));
-	mTextures[brickTex->Name] = std::move(brickTex);
+	//auto brickTex = std::make_unique<Texture>();
+	//brickTex->Name = "brickTex";
+	//brickTex->Filename = L"../../Textures/bricks.dds";
+	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	//	mCommandList.Get(), brickTex->Filename.c_str(),
+	//	brickTex->Resource, brickTex->UploadHeap));
+	//mTextures[brickTex->Name] = std::move(brickTex);
 
-	auto fenceTex = std::make_unique<Texture>();
-	fenceTex->Name = "fenceTex";
-	fenceTex->Filename = L"../../Textures/WireFence.dds";
-	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), fenceTex->Filename.c_str(),
-		fenceTex->Resource, fenceTex->UploadHeap));
-	mTextures[fenceTex->Name] = std::move(fenceTex);
+	//auto fenceTex = std::make_unique<Texture>();
+	//fenceTex->Name = "fenceTex";
+	//fenceTex->Filename = L"../../Textures/WireFence.dds";
+	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	//	mCommandList.Get(), fenceTex->Filename.c_str(),
+	//	fenceTex->Resource, fenceTex->UploadHeap));
+	//mTextures[fenceTex->Name] = std::move(fenceTex);
 
-	auto roadTex = std::make_unique<Texture>();
-	roadTex->Name = "roadTex";
-	roadTex->Filename = L"../../Textures/road.dds";
-	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), roadTex->Filename.c_str(),
-		roadTex->Resource, roadTex->UploadHeap));
-	mTextures[roadTex->Name] = std::move(roadTex);
+	//auto roadTex = std::make_unique<Texture>();
+	//roadTex->Name = "roadTex";
+	//roadTex->Filename = L"../../Textures/road.dds";
+	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	//	mCommandList.Get(), roadTex->Filename.c_str(),
+	//	roadTex->Resource, roadTex->UploadHeap));
+	//mTextures[roadTex->Name] = std::move(roadTex);
 
-	auto roadITex = std::make_unique<Texture>();
-	roadITex->Name = "roadITex";
-	roadITex->Filename = L"../../Textures/intersection.dds";
-	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), roadITex->Filename.c_str(),
-		roadITex->Resource, roadITex->UploadHeap));
-	mTextures[roadITex->Name] = std::move(roadITex);
+	//auto roadITex = std::make_unique<Texture>();
+	//roadITex->Name = "roadITex";
+	//roadITex->Filename = L"../../Textures/intersection.dds";
+	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	//	mCommandList.Get(), roadITex->Filename.c_str(),
+	//	roadITex->Resource, roadITex->UploadHeap));
+	//mTextures[roadITex->Name] = std::move(roadITex);
 
-	auto treeArrayTex = std::make_unique<Texture>();
-	treeArrayTex->Name = "treeArrayTex";
-	treeArrayTex->Filename = L"../../Textures/treeArray.dds";
-	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), treeArrayTex->Filename.c_str(),
-		treeArrayTex->Resource, treeArrayTex->UploadHeap));
-	mTextures[treeArrayTex->Name] = std::move(treeArrayTex);
+	//auto treeArrayTex = std::make_unique<Texture>();
+	//treeArrayTex->Name = "treeArrayTex";
+	//treeArrayTex->Filename = L"../../Textures/treeArray.dds";
+	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	//	mCommandList.Get(), treeArrayTex->Filename.c_str(),
+	//	treeArrayTex->Resource, treeArrayTex->UploadHeap));
+	//mTextures[treeArrayTex->Name] = std::move(treeArrayTex);
 
 
 }
@@ -842,15 +832,15 @@ void Game::BuildDescriptorHeaps()
 	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
 	auto grassTex = mTextures["grassTex"]->Resource;
-	auto waterTex = mTextures["waterTex"]->Resource;
-	auto roofTex = mTextures["roofTex"]->Resource;
-	auto buildingTex = mTextures["buildingTex"]->Resource;
-	auto concreteTex = mTextures["concreteTex"]->Resource;
-	auto brickTex = mTextures["brickTex"]->Resource;
-	auto fenceTex = mTextures["fenceTex"]->Resource;
-	auto roadTex = mTextures["roadTex"]->Resource;
-	auto roadITex = mTextures["roadITex"]->Resource;
-	auto treeArrayTex = mTextures["treeArrayTex"]->Resource;
+	//auto waterTex = mTextures["waterTex"]->Resource;
+	//auto roofTex = mTextures["roofTex"]->Resource;
+	//auto buildingTex = mTextures["buildingTex"]->Resource;
+	//auto concreteTex = mTextures["concreteTex"]->Resource;
+	//auto brickTex = mTextures["brickTex"]->Resource;
+	//auto fenceTex = mTextures["fenceTex"]->Resource;
+	//auto roadTex = mTextures["roadTex"]->Resource;
+	//auto roadITex = mTextures["roadITex"]->Resource;
+	//auto treeArrayTex = mTextures["treeArrayTex"]->Resource;
 
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -864,63 +854,63 @@ void Game::BuildDescriptorHeaps()
 	// next descriptor
 	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
-	srvDesc.Format = waterTex->GetDesc().Format;
-	md3dDevice->CreateShaderResourceView(waterTex.Get(), &srvDesc, hDescriptor);
+	//srvDesc.Format = waterTex->GetDesc().Format;
+	//md3dDevice->CreateShaderResourceView(waterTex.Get(), &srvDesc, hDescriptor);
 
-	// next descriptor
-	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+	//// next descriptor
+	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
-	srvDesc.Format = roofTex->GetDesc().Format;
-	md3dDevice->CreateShaderResourceView(roofTex.Get(), &srvDesc, hDescriptor);
+	//srvDesc.Format = roofTex->GetDesc().Format;
+	//md3dDevice->CreateShaderResourceView(roofTex.Get(), &srvDesc, hDescriptor);
 
-	// next descriptor - building texture
-	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+	//// next descriptor - building texture
+	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
-	srvDesc.Format = buildingTex->GetDesc().Format;
-	md3dDevice->CreateShaderResourceView(buildingTex.Get(), &srvDesc, hDescriptor);
+	//srvDesc.Format = buildingTex->GetDesc().Format;
+	//md3dDevice->CreateShaderResourceView(buildingTex.Get(), &srvDesc, hDescriptor);
 
-	// next descriptor - concrete texture
-	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+	//// next descriptor - concrete texture
+	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
-	srvDesc.Format = concreteTex->GetDesc().Format;
-	md3dDevice->CreateShaderResourceView(concreteTex.Get(), &srvDesc, hDescriptor);
+	//srvDesc.Format = concreteTex->GetDesc().Format;
+	//md3dDevice->CreateShaderResourceView(concreteTex.Get(), &srvDesc, hDescriptor);
 
-	// next descriptor - brick texture
-	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+	//// next descriptor - brick texture
+	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
-	srvDesc.Format = brickTex->GetDesc().Format;
-	md3dDevice->CreateShaderResourceView(brickTex.Get(), &srvDesc, hDescriptor);
+	//srvDesc.Format = brickTex->GetDesc().Format;
+	//md3dDevice->CreateShaderResourceView(brickTex.Get(), &srvDesc, hDescriptor);
 
-	// next descriptor - fence texture
-	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+	//// next descriptor - fence texture
+	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
-	srvDesc.Format = fenceTex->GetDesc().Format;
-	md3dDevice->CreateShaderResourceView(fenceTex.Get(), &srvDesc, hDescriptor);
+	//srvDesc.Format = fenceTex->GetDesc().Format;
+	//md3dDevice->CreateShaderResourceView(fenceTex.Get(), &srvDesc, hDescriptor);
 
-	// next descriptor - road texture
-	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+	//// next descriptor - road texture
+	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
-	srvDesc.Format = roadTex->GetDesc().Format;
-	md3dDevice->CreateShaderResourceView(roadTex.Get(), &srvDesc, hDescriptor);
+	//srvDesc.Format = roadTex->GetDesc().Format;
+	//md3dDevice->CreateShaderResourceView(roadTex.Get(), &srvDesc, hDescriptor);
 
-	// next descriptor - roadI texture
-	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+	//// next descriptor - roadI texture
+	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
-	srvDesc.Format = roadITex->GetDesc().Format;
-	md3dDevice->CreateShaderResourceView(roadITex.Get(), &srvDesc, hDescriptor);
+	//srvDesc.Format = roadITex->GetDesc().Format;
+	//md3dDevice->CreateShaderResourceView(roadITex.Get(), &srvDesc, hDescriptor);
 
-	// next descriptor
-	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+	//// next descriptor
+	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
 
-	auto desc = treeArrayTex->GetDesc();
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
-	srvDesc.Format = treeArrayTex->GetDesc().Format;
-	srvDesc.Texture2DArray.MostDetailedMip = 0;
-	srvDesc.Texture2DArray.MipLevels = -1;
-	srvDesc.Texture2DArray.FirstArraySlice = 0;
-	srvDesc.Texture2DArray.ArraySize = treeArrayTex->GetDesc().DepthOrArraySize;
-	md3dDevice->CreateShaderResourceView(treeArrayTex.Get(), &srvDesc, hDescriptor);
+	//auto desc = treeArrayTex->GetDesc();
+	//srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+	//srvDesc.Format = treeArrayTex->GetDesc().Format;
+	//srvDesc.Texture2DArray.MostDetailedMip = 0;
+	//srvDesc.Texture2DArray.MipLevels = -1;
+	//srvDesc.Texture2DArray.FirstArraySlice = 0;
+	//srvDesc.Texture2DArray.ArraySize = treeArrayTex->GetDesc().DepthOrArraySize;
+	//md3dDevice->CreateShaderResourceView(treeArrayTex.Get(), &srvDesc, hDescriptor);
 
 
 }
@@ -960,127 +950,6 @@ void Game::BuildShadersAndInputLayouts()
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 	};
-}
-
-void Game::BuildLandGeometry()
-{
-
-	GeometryGenerator geoGen;
-
-	GeometryGenerator::MeshData grid = geoGen.CreateGrid(20.0f, 30.0f, 60, 40);
-
-	//
-	// Extract the vertex elements we are interested and apply the height function to
-	// each vertex.  In addition, color the vertices based on their height so we have
-	// sandy looking beaches, grassy low hills, and snow mountain peaks.
-	//
-
-	std::vector<Vertex> vertices(grid.Vertices.size());
-	for (size_t i = 0; i < grid.Vertices.size(); ++i)
-	{
-		auto& p = grid.Vertices[i].Position;
-		vertices[i].Pos = p;
-		vertices[i].Pos.y = GetHillsHeight(p.x, p.z);
-		vertices[i].Normal = GetHillsNormal(p.x, p.z);
-		vertices[i].TexC = grid.Vertices[i].TexC;
-	}
-
-	
-
-	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-
-	std::vector<std::uint16_t> indices = grid.GetIndices16();
-	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-	auto geo = std::make_unique<MeshGeometry>();
-	geo->Name = "landGeo";
-
-	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-
-	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
-
-	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-	geo->VertexByteStride = sizeof(Vertex);
-	geo->VertexBufferByteSize = vbByteSize;
-	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	geo->IndexBufferByteSize = ibByteSize;
-
-	SubmeshGeometry submesh;
-	submesh.IndexCount = (UINT)indices.size();
-	submesh.StartIndexLocation = 0;
-	submesh.BaseVertexLocation = 0;
-
-	geo->DrawArgs["grid"] = submesh;
-
-	//mGeometries["landGeo"] = std::move(geo);
-
-	mGeometries[geo->Name] = std::move(geo);
-}
-
-void Game::BuildCityLandGeometry()
-{
-
-	GeometryGenerator geoGen;
-
-	GeometryGenerator::MeshData grid = geoGen.CreateGrid(20.0f, 30.0f, 60, 40);
-
-	//
-	// Extract the vertex elements we are interested and apply the height function to
-	// each vertex.  In addition, color the vertices based on their height so we have
-	// sandy looking beaches, grassy low hills, and snow mountain peaks.
-	//
-
-	std::vector<Vertex> vertices(grid.Vertices.size());
-	for (size_t i = 0; i < grid.Vertices.size(); ++i)
-	{
-		auto& p = grid.Vertices[i].Position;
-		vertices[i].Pos = p;
-		vertices[i].Normal = GetHillsNormal(p.x, p.z);
-		vertices[i].TexC = grid.Vertices[i].TexC;
-	}
-
-	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-
-	std::vector<std::uint16_t> indices = grid.GetIndices16();
-	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-	auto geo = std::make_unique<MeshGeometry>();
-	geo->Name = "landGeo";
-
-	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-
-	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
-
-	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-	geo->VertexByteStride = sizeof(Vertex);
-	geo->VertexBufferByteSize = vbByteSize;
-	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	geo->IndexBufferByteSize = ibByteSize;
-
-	SubmeshGeometry submesh;
-	submesh.IndexCount = (UINT)indices.size();
-	submesh.StartIndexLocation = 0;
-	submesh.BaseVertexLocation = 0;
-
-	geo->DrawArgs["grid"] = submesh;
-
-	//mGeometries["landGeo"] = std::move(geo);
-
-	mGeometries[geo->Name] = std::move(geo);
 }
 
 void Game::BuildGroundGeometry()
@@ -1134,611 +1003,7 @@ void Game::BuildGroundGeometry()
 	mGeometries[geo->Name] = std::move(geo);
 }
 
-void Game::BuildCNTowerGeometry()
-{
-	GeometryGenerator geoGen;
 
-	GeometryGenerator::MeshData towerCylinder = geoGen.CreateCylinder(0.5, 0.4f, 1.0f, 20, 16);
-	GeometryGenerator::MeshData towerWedge = geoGen.CreateWedge(1.0f, 1.0, 1.0f, 0);
-	GeometryGenerator::MeshData towerPlatformSphere = geoGen.CreateSphere(0.5, 16, 16);
-	GeometryGenerator::MeshData towerPlatformCylinder = geoGen.CreateCylinder(0.5, 0.5, 1.0, 20, 6);
-	GeometryGenerator::MeshData towerCone = geoGen.CreateCone(0.5f, 1.0, 20, 16);
-
-
-	// CN Tower
-	//verticies
-	UINT towerCylinderVertexOffset = 0;
-	UINT towerWedgeVertexOffset = (UINT)towerCylinder.Vertices.size();
-	UINT towerPlatformSphereVertexOffset = towerWedgeVertexOffset + (UINT)towerWedge.Vertices.size();
-	UINT towerPlatformCylinderVertexOffset = towerPlatformSphereVertexOffset + (UINT)towerPlatformSphere.Vertices.size();
-	UINT towerConeVertexOffset = towerPlatformCylinderVertexOffset + (UINT)towerPlatformCylinder.Vertices.size();
-
-	//indicies
-	UINT towerCylinderIndexOffset = 0;
-	UINT towerWedgeIndexOffset = (UINT)towerCylinder.Indices32.size();
-	UINT towerPlatformSphereIndexOffset = towerWedgeIndexOffset + (UINT)towerWedge.Indices32.size();
-	UINT towerPlatformCylinderIndexOffset = towerPlatformSphereIndexOffset + (UINT)towerPlatformSphere.Indices32.size();
-	UINT towerConeIndexOffset = towerPlatformCylinderIndexOffset + (UINT)towerPlatformCylinder.Indices32.size();
-
-	//CN Tower Submeshes
-	SubmeshGeometry towerCylinderSubmesh;
-	towerCylinderSubmesh.IndexCount = (UINT)towerCylinder.Indices32.size();
-	towerCylinderSubmesh.StartIndexLocation = towerCylinderIndexOffset;
-	towerCylinderSubmesh.BaseVertexLocation = towerCylinderVertexOffset;
-
-	SubmeshGeometry towerWedgeSubmesh;
-	towerWedgeSubmesh.IndexCount = (UINT)towerWedge.Indices32.size();
-	towerWedgeSubmesh.StartIndexLocation = towerWedgeIndexOffset;
-	towerWedgeSubmesh.BaseVertexLocation = towerWedgeVertexOffset;
-
-	SubmeshGeometry towerPlatformSphereSubmesh;
-	towerPlatformSphereSubmesh.IndexCount = (UINT)towerPlatformSphere.Indices32.size();
-	towerPlatformSphereSubmesh.StartIndexLocation = towerPlatformSphereIndexOffset;
-	towerPlatformSphereSubmesh.BaseVertexLocation = towerPlatformSphereVertexOffset;
-
-	SubmeshGeometry towerPlatformCylinderSubmesh;
-	towerPlatformCylinderSubmesh.IndexCount = (UINT)towerPlatformCylinder.Indices32.size();
-	towerPlatformCylinderSubmesh.StartIndexLocation = towerPlatformCylinderIndexOffset;
-	towerPlatformCylinderSubmesh.BaseVertexLocation = towerPlatformCylinderVertexOffset;
-
-	SubmeshGeometry towerConeSubmesh;
-	towerConeSubmesh.IndexCount = (UINT)towerCone.Indices32.size();
-	towerConeSubmesh.StartIndexLocation = towerConeIndexOffset;
-	towerConeSubmesh.BaseVertexLocation = towerConeVertexOffset;
-
-	auto totalVertexCount = /*box.Vertices.size();*/
-		towerCylinder.Vertices.size() +
-		towerWedge.Vertices.size() +
-		towerPlatformSphere.Vertices.size() +
-		towerPlatformCylinder.Vertices.size() +
-		towerCone.Vertices.size()
-		;
-
-	std::vector<Vertex> vertices(totalVertexCount);
-	UINT k = 0;
-	//CN Tower
-	for (size_t i = 0; i < towerCylinder.Vertices.size(); ++i, ++k)
-	{
-		auto& p = towerCylinder.Vertices[i].Position;
-		vertices[k].Pos = p;
-		vertices[k].Normal = towerCylinder.Vertices[i].Normal;
-		vertices[k].TexC = towerCylinder.Vertices[i].TexC;
-	}
-
-	for (size_t i = 0; i < towerWedge.Vertices.size(); ++i, ++k)
-	{
-		auto& p = towerWedge.Vertices[i].Position;
-		vertices[k].Pos = p;
-		vertices[k].Normal = towerWedge.Vertices[i].Normal;
-		vertices[k].TexC = towerWedge.Vertices[i].TexC;
-	}
-
-	for (size_t i = 0; i < towerPlatformSphere.Vertices.size(); ++i, ++k)
-	{
-		auto& p = towerPlatformSphere.Vertices[i].Position;
-		vertices[k].Pos = p;
-		vertices[k].Normal = towerPlatformSphere.Vertices[i].Normal;
-		vertices[k].TexC = towerPlatformSphere.Vertices[i].TexC;
-	}
-
-	for (size_t i = 0; i < towerPlatformCylinder.Vertices.size(); ++i, ++k)
-	{
-		auto& p = towerPlatformCylinder.Vertices[i].Position;
-		vertices[k].Pos = p;
-		vertices[k].Normal = towerPlatformCylinder.Vertices[i].Normal;
-		vertices[k].TexC = towerPlatformCylinder.Vertices[i].TexC;
-	}
-
-	for (size_t i = 0; i < towerCone.Vertices.size(); ++i, ++k)
-	{
-		auto& p = towerCone.Vertices[i].Position;
-		vertices[k].Pos = p;
-		vertices[k].Normal = towerCone.Vertices[i].Normal;
-		vertices[k].TexC = towerCone.Vertices[i].TexC;
-	}
-
-
-
-	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-
-	std::vector<std::uint16_t> indices;
-
-	//CN Tower
-
-	indices.insert(indices.end(), std::begin(towerCylinder.GetIndices16()), std::end(towerCylinder.GetIndices16()));
-	indices.insert(indices.end(), std::begin(towerWedge.GetIndices16()), std::end(towerWedge.GetIndices16()));
-	indices.insert(indices.end(), std::begin(towerPlatformSphere.GetIndices16()), std::end(towerPlatformSphere.GetIndices16()));
-	indices.insert(indices.end(), std::begin(towerPlatformCylinder.GetIndices16()), std::end(towerPlatformCylinder.GetIndices16()));
-	indices.insert(indices.end(), std::begin(towerCone.GetIndices16()), std::end(towerCone.GetIndices16()));
-
-	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-	auto geo = std::make_unique<MeshGeometry>();
-	geo->Name = "CNTowerGeo";
-
-	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-
-	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
-
-	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-	geo->VertexByteStride = sizeof(Vertex);
-	geo->VertexBufferByteSize = vbByteSize;
-	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	geo->IndexBufferByteSize = ibByteSize;
-
-	/*SubmeshGeometry submesh;
-	submesh.IndexCount = (UINT)indices.size();
-	submesh.StartIndexLocation = 0;
-	submesh.BaseVertexLocation = 0;*/
-
-	geo->DrawArgs["towerCylinder"] = towerCylinderSubmesh;
-	geo->DrawArgs["towerWedge"] = towerWedgeSubmesh;
-	geo->DrawArgs["towerPlatformSphere"] = towerPlatformSphereSubmesh;
-	geo->DrawArgs["towerPlatformCylinder"] = towerPlatformCylinderSubmesh;
-	geo->DrawArgs["towerCone"] = towerConeSubmesh;
-
-	mGeometries[geo->Name] = std::move(geo);
-}
-
-void Game::BuildRogersCenter()
-{
-	GeometryGenerator geoGen;
-
-	GeometryGenerator::MeshData rogersCylinder = geoGen.CreateCylinder(0.5, 0.5, 1.0f, 20, 16);
-	GeometryGenerator::MeshData rogersDome = geoGen.CreateDome(0.5, 20, 20);
-
-
-	//verticies
-	// Rogers Center
-	UINT rogersCylinderVertexOffset = 0;
-	UINT rogersDomeVertexOffset = (UINT)rogersCylinder.Vertices.size();
-
-	//indicies
-	UINT rogersCylinderIndexOffset = 0;
-	UINT rogersDomeIndexOffset = (UINT)rogersCylinder.Indices32.size();
-
-	//Rogers Center
-	SubmeshGeometry rogersCylinderSubmesh;
-	rogersCylinderSubmesh.IndexCount = (UINT)rogersCylinder.Indices32.size();
-	rogersCylinderSubmesh.StartIndexLocation = rogersCylinderIndexOffset;
-	rogersCylinderSubmesh.BaseVertexLocation = rogersCylinderVertexOffset;
-
-	SubmeshGeometry rogersDomeSubmesh;
-	rogersDomeSubmesh.IndexCount = (UINT)rogersDome.Indices32.size();
-	rogersDomeSubmesh.StartIndexLocation = rogersDomeIndexOffset;
-	rogersDomeSubmesh.BaseVertexLocation = rogersDomeVertexOffset;
-
-
-	auto totalVertexCount = /*box.Vertices.size();*/
-		rogersCylinder.Vertices.size() +
-		rogersDome.Vertices.size()
-		;
-
-	std::vector<Vertex> vertices(totalVertexCount);
-	UINT k = 0;
-	//CN Tower
-	for (size_t i = 0; i < rogersCylinder.Vertices.size(); ++i, ++k)
-	{
-		auto& p = rogersCylinder.Vertices[i].Position;
-		vertices[k].Pos = p;
-		vertices[k].Normal = rogersCylinder.Vertices[i].Normal;
-		vertices[k].TexC = rogersCylinder.Vertices[i].TexC;
-	}
-
-	for (size_t i = 0; i < rogersDome.Vertices.size(); ++i, ++k)
-	{
-		auto& p = rogersDome.Vertices[i].Position;
-		vertices[k].Pos = p;
-		vertices[k].Normal = rogersDome.Vertices[i].Normal;
-		vertices[k].TexC = rogersDome.Vertices[i].TexC;
-	}
-
-
-
-
-	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-
-	std::vector<std::uint16_t> indices;
-
-	// Rogers Center
-	indices.insert(indices.end(), std::begin(rogersCylinder.GetIndices16()), std::end(rogersCylinder.GetIndices16()));
-	indices.insert(indices.end(), std::begin(rogersDome.GetIndices16()), std::end(rogersDome.GetIndices16()));
-
-	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-	auto geo = std::make_unique<MeshGeometry>();
-	geo->Name = "RogersCenterGeo";
-
-	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-
-	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
-
-	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-	geo->VertexByteStride = sizeof(Vertex);
-	geo->VertexBufferByteSize = vbByteSize;
-	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	geo->IndexBufferByteSize = ibByteSize;
-
-
-	geo->DrawArgs["rogersCylinder"] = rogersCylinderSubmesh;
-	geo->DrawArgs["rogersDome"] = rogersDomeSubmesh;
-
-	mGeometries[geo->Name] = std::move(geo);
-
-}
-
-void Game::BuildBuildings()
-{
-
-	GeometryGenerator geoGen;
-
-	GeometryGenerator::MeshData buildingBox = geoGen.CreateBox(1.0, 1.0, 1.0, 1);
-	GeometryGenerator::MeshData buildingFlatPyramid = geoGen.CreateFlatToppedPyramid(1.0, 1.0, 1.0, 1);
-	GeometryGenerator::MeshData buildingPyramid = geoGen.CreatePyramid(1.0, 1.0, 1.0, 1);
-
-
-	//verticies
-	UINT buildingBoxVertexOffset = 0;
-	UINT buildingFlatPyramidVertexOffset = (UINT)buildingBox.Vertices.size();
-	UINT buildingPyramidVertexOffset = buildingFlatPyramidVertexOffset + (UINT)buildingFlatPyramid.Vertices.size();
-
-	//indicies
-	UINT buildingBoxIndexOffset = 0;
-	UINT buildingFlatPyramidIndexOffset = (UINT)buildingBox.Indices32.size();
-	UINT buildingPyramidIndexOffset = buildingFlatPyramidIndexOffset + (UINT)buildingFlatPyramid.Indices32.size();
-
-
-	//Buildings
-	SubmeshGeometry buildingBoxSubmesh;
-	buildingBoxSubmesh.IndexCount = (UINT)buildingBox.Indices32.size();
-	buildingBoxSubmesh.StartIndexLocation = buildingBoxIndexOffset;
-	buildingBoxSubmesh.BaseVertexLocation = buildingBoxVertexOffset;
-
-	SubmeshGeometry buildingFlatPyramidSubmesh;
-	buildingFlatPyramidSubmesh.IndexCount = (UINT)buildingFlatPyramid.Indices32.size();
-	buildingFlatPyramidSubmesh.StartIndexLocation = buildingFlatPyramidIndexOffset;
-	buildingFlatPyramidSubmesh.BaseVertexLocation = buildingFlatPyramidVertexOffset;
-
-	SubmeshGeometry buildingPyramidSubmesh;
-	buildingPyramidSubmesh.IndexCount = (UINT)buildingPyramid.Indices32.size();
-	buildingPyramidSubmesh.StartIndexLocation = buildingPyramidIndexOffset;
-	buildingPyramidSubmesh.BaseVertexLocation = buildingPyramidVertexOffset;
-
-
-	auto totalVertexCount = /*box.Vertices.size();*/
-		buildingBox.Vertices.size() +
-		buildingFlatPyramid.Vertices.size() +
-		buildingPyramid.Vertices.size()
-		;
-
-	std::vector<Vertex> vertices(totalVertexCount);
-	UINT k = 0;
-	//CN Tower
-	for (size_t i = 0; i < buildingBox.Vertices.size(); ++i, ++k)
-	{
-		auto& p = buildingBox.Vertices[i].Position;
-		vertices[k].Pos = p;
-		vertices[k].Normal = buildingBox.Vertices[i].Normal;
-		vertices[k].TexC = buildingBox.Vertices[i].TexC;
-	}
-
-	for (size_t i = 0; i < buildingFlatPyramid.Vertices.size(); ++i, ++k)
-	{
-		auto& p = buildingFlatPyramid.Vertices[i].Position;
-		vertices[k].Pos = p;
-		vertices[k].Normal = buildingFlatPyramid.Vertices[i].Normal;
-		vertices[k].TexC = buildingFlatPyramid.Vertices[i].TexC;
-	}
-	for (size_t i = 0; i < buildingPyramid.Vertices.size(); ++i, ++k)
-	{
-		auto& p = buildingPyramid.Vertices[i].Position;
-		vertices[k].Pos = p;
-		vertices[k].Normal = buildingPyramid.Vertices[i].Normal;
-		vertices[k].TexC = buildingPyramid.Vertices[i].TexC;
-	}
-
-
-
-
-	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-
-	std::vector<std::uint16_t> indices;
-
-	// Buildings
-	indices.insert(indices.end(), std::begin(buildingBox.GetIndices16()), std::end(buildingBox.GetIndices16()));
-	indices.insert(indices.end(), std::begin(buildingFlatPyramid.GetIndices16()), std::end(buildingFlatPyramid.GetIndices16()));
-	indices.insert(indices.end(), std::begin(buildingPyramid.GetIndices16()), std::end(buildingPyramid.GetIndices16()));
-
-	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-	auto geo = std::make_unique<MeshGeometry>();
-	geo->Name = "buildingsGeo";
-
-	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-
-	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
-
-	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-	geo->VertexByteStride = sizeof(Vertex);
-	geo->VertexBufferByteSize = vbByteSize;
-	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	geo->IndexBufferByteSize = ibByteSize;
-
-
-	geo->DrawArgs["buildingBox"] = buildingBoxSubmesh;
-	geo->DrawArgs["buildingFlatPyramid"] = buildingFlatPyramidSubmesh;
-	geo->DrawArgs["buildingPyramid"] = buildingPyramidSubmesh;
-
-	mGeometries[geo->Name] = std::move(geo);
-}
-
-void Game::BuildWavesGeometry()
-{
-	std::vector<std::uint16_t> indices(3 * mWaves->TriangleCount()); // 3 indices per face
-	assert(mWaves->VertexCount() < 0x0000ffff);
-
-	// Iterate over each quad.
-	int m = mWaves->RowCount();
-	int n = mWaves->ColumnCount();
-	int k = 0;
-	for (int i = 0; i < m - 1; ++i)
-	{
-		for (int j = 0; j < n - 1; ++j)
-		{
-			indices[k] = i * n + j;
-			indices[k + 1] = i * n + j + 1;
-			indices[k + 2] = (i + 1) * n + j;
-
-			indices[k + 3] = (i + 1) * n + j;
-			indices[k + 4] = i * n + j + 1;
-			indices[k + 5] = (i + 1) * n + j + 1;
-
-			k += 6; // next quad
-		}
-	}
-
-	UINT vbByteSize = mWaves->VertexCount() * sizeof(Vertex);
-	UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-	auto geo = std::make_unique<MeshGeometry>();
-	geo->Name = "waterGeo";
-
-	// Set dynamically.
-	geo->VertexBufferCPU = nullptr;
-	geo->VertexBufferGPU = nullptr;
-
-	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-	geo->VertexByteStride = sizeof(Vertex);
-	geo->VertexBufferByteSize = vbByteSize;
-	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	geo->IndexBufferByteSize = ibByteSize;
-
-	SubmeshGeometry submesh;
-	submesh.IndexCount = (UINT)indices.size();
-	submesh.StartIndexLocation = 0;
-	submesh.BaseVertexLocation = 0;
-
-	geo->DrawArgs["grid"] = submesh;
-
-	mGeometries["waterGeo"] = std::move(geo);
-}
-
-void Game::BuildBoxGeometry()
-{
-	GeometryGenerator geoGen;
-	GeometryGenerator::MeshData box = geoGen.CreateBox(8.0f, 8.0f, 8.0f, 3);
-
-	std::vector<Vertex> vertices(box.Vertices.size());
-	for (size_t i = 0; i < box.Vertices.size(); ++i)
-	{
-		auto& p = box.Vertices[i].Position;
-		vertices[i].Pos = p;
-		vertices[i].Normal = box.Vertices[i].Normal;
-		vertices[i].TexC = box.Vertices[i].TexC;
-	}
-
-	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-
-	std::vector<std::uint16_t> indices = box.GetIndices16();
-	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-	auto geo = std::make_unique<MeshGeometry>();
-	geo->Name = "boxGeo";
-
-	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-
-	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
-
-	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-	geo->VertexByteStride = sizeof(Vertex);
-	geo->VertexBufferByteSize = vbByteSize;
-	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	geo->IndexBufferByteSize = ibByteSize;
-
-	SubmeshGeometry submesh;
-	submesh.IndexCount = (UINT)indices.size();
-	submesh.StartIndexLocation = 0;
-	submesh.BaseVertexLocation = 0;
-
-	geo->DrawArgs["box"] = submesh;
-
-	mGeometries["boxGeo"] = std::move(geo);
-}
-
-void Game::BuildDiamondGeometry()
-{
-	GeometryGenerator geoGen;
-	GeometryGenerator::MeshData diamond = geoGen.CreateDiamond(1.0f, 0.5f, 8.0f);
-
-	std::vector<Vertex> vertices(diamond.Vertices.size());
-	for (size_t i = 0; i < diamond.Vertices.size(); ++i)
-	{
-		auto& p = diamond.Vertices[i].Position;
-		vertices[i].Pos = p;
-		vertices[i].Normal = diamond.Vertices[i].Normal;
-		vertices[i].TexC = diamond.Vertices[i].TexC;
-	}
-
-	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-
-	std::vector<std::uint16_t> indices = diamond.GetIndices16();
-	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-	auto geo = std::make_unique<MeshGeometry>();
-	geo->Name = "diamondGeo";
-
-	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-
-	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
-
-	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-	geo->VertexByteStride = sizeof(Vertex);
-	geo->VertexBufferByteSize = vbByteSize;
-	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	geo->IndexBufferByteSize = ibByteSize;
-
-	SubmeshGeometry submesh;
-	submesh.IndexCount = (UINT)indices.size();
-	submesh.StartIndexLocation = 0;
-	submesh.BaseVertexLocation = 0;
-
-	geo->DrawArgs["diamond"] = submesh;
-
-	mGeometries[geo->Name] = std::move(geo);
-}
-
-void Game::BuildTreeSpritesGeometry()
-{
-	//step5
-	struct TreeSpriteVertex
-	{
-		XMFLOAT3 Pos;
-		XMFLOAT2 Size;
-	};
-
-	static const int treeCount = 16;
-	std::array<TreeSpriteVertex, 16> vertices;
-
-	// make a line of 6 trees
-	for (int i = 0; i < 6; i++)
-	{
-		vertices[i].Pos = XMFLOAT3((i + 2) * scaleFactor, 0.5 * scaleFactor, MathHelper::RandF(-1.9f, -1.2f) * scaleFactor);
-		
-		vertices[i].Size = XMFLOAT2(1.0 * scaleFactor, 1.0f * scaleFactor);
-	}
-
-	// make a line of 6 trees
-	for (int i = 6; i < 12; i++)
-	{
-		vertices[i].Pos = XMFLOAT3((i - 5) * scaleFactor, 0.5 * scaleFactor, MathHelper::RandF(-2.5, -2.0) * scaleFactor);
-		vertices[i].Size = XMFLOAT2(1.0 * scaleFactor, 1.0f * scaleFactor);
-	}
-
-
-	vertices[12].Pos = XMFLOAT3(-4 * scaleFactor, 0.5 * scaleFactor, -2.5 * scaleFactor);
-	vertices[12].Size = XMFLOAT2(1.0 * scaleFactor, 1.0f * scaleFactor);
-
-	vertices[13].Pos = XMFLOAT3(-5.8 * scaleFactor, 0.5 * scaleFactor, -2.7 * scaleFactor);
-	vertices[13].Size = XMFLOAT2(1.0 * scaleFactor, 1.0f * scaleFactor);
-
-	vertices[14].Pos = XMFLOAT3(0 * scaleFactor, 0.5 * scaleFactor, -2 * scaleFactor);
-	vertices[14].Size = XMFLOAT2(1.0 * scaleFactor, 1.0f * scaleFactor);
-
-	vertices[15].Pos = XMFLOAT3(4.4 * scaleFactor, 0.5 * scaleFactor, -3 * scaleFactor);
-	vertices[15].Size = XMFLOAT2(1.0 * scaleFactor, 1.0f * scaleFactor);
-
-	////make 16 randomly placed trees
-	//for (UINT i = 0; i < treeCount; ++i)
-	//{
-	//	float x = MathHelper::RandF(-10.0f, 10.0f);
-	//	float z = MathHelper::RandF(-2.0f, 5.0f);
-	//	float y = 0;
-
-	//	// Move tree slightly above land height.
-	//	y += 0.5f;
-
-	//	vertices[i].Pos = XMFLOAT3(x, y, z);
-	//	vertices[i].Size = XMFLOAT2(1.0, 1.0f);
-	//}
-
-	std::array<std::uint16_t, 16> indices =
-	{
-		0, 1, 2, 3, 4, 5, 6, 7,
-		8, 9, 10, 11, 12, 13, 14, 15
-	};
-
-	const UINT vbByteSize = (UINT)vertices.size() * sizeof(TreeSpriteVertex);
-	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-	auto geo = std::make_unique<MeshGeometry>();
-	geo->Name = "treeSpritesGeo";
-
-	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-
-	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
-
-	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-	geo->VertexByteStride = sizeof(TreeSpriteVertex);
-	geo->VertexBufferByteSize = vbByteSize;
-	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	geo->IndexBufferByteSize = ibByteSize;
-
-	SubmeshGeometry submesh;
-	submesh.IndexCount = (UINT)indices.size();
-	submesh.StartIndexLocation = 0;
-	submesh.BaseVertexLocation = 0;
-
-	geo->DrawArgs["points"] = submesh;
-
-	mGeometries["treeSpritesGeo"] = std::move(geo);
-}
 
 void Game::BuildPSOs()
 {
@@ -1813,31 +1078,31 @@ void Game::BuildPSOs()
 	alphaTestedPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&alphaTestedPsoDesc, IID_PPV_ARGS(&mPSOs["alphaTested"])));
 
-	//
-	// PSO for tree sprites
-	//
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC treeSpritePsoDesc = opaquePsoDesc;
-	treeSpritePsoDesc.VS =
-	{
-		reinterpret_cast<BYTE*>(mShaders["treeSpriteVS"]->GetBufferPointer()),
-		mShaders["treeSpriteVS"]->GetBufferSize()
-	};
-	treeSpritePsoDesc.GS =
-	{
-		reinterpret_cast<BYTE*>(mShaders["treeSpriteGS"]->GetBufferPointer()),
-		mShaders["treeSpriteGS"]->GetBufferSize()
-	};
-	treeSpritePsoDesc.PS =
-	{
-		reinterpret_cast<BYTE*>(mShaders["treeSpritePS"]->GetBufferPointer()),
-		mShaders["treeSpritePS"]->GetBufferSize()
-	};
-	//step1
-	treeSpritePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-	treeSpritePsoDesc.InputLayout = { mTreeSpriteInputLayout.data(), (UINT)mTreeSpriteInputLayout.size() };
-	treeSpritePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	////
+	//// PSO for tree sprites
+	////
+	//D3D12_GRAPHICS_PIPELINE_STATE_DESC treeSpritePsoDesc = opaquePsoDesc;
+	//treeSpritePsoDesc.VS =
+	//{
+	//	reinterpret_cast<BYTE*>(mShaders["treeSpriteVS"]->GetBufferPointer()),
+	//	mShaders["treeSpriteVS"]->GetBufferSize()
+	//};
+	//treeSpritePsoDesc.GS =
+	//{
+	//	reinterpret_cast<BYTE*>(mShaders["treeSpriteGS"]->GetBufferPointer()),
+	//	mShaders["treeSpriteGS"]->GetBufferSize()
+	//};
+	//treeSpritePsoDesc.PS =
+	//{
+	//	reinterpret_cast<BYTE*>(mShaders["treeSpritePS"]->GetBufferPointer()),
+	//	mShaders["treeSpritePS"]->GetBufferSize()
+	//};
+	////step1
+	//treeSpritePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	//treeSpritePsoDesc.InputLayout = { mTreeSpriteInputLayout.data(), (UINT)mTreeSpriteInputLayout.size() };
+	//treeSpritePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 
-	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&treeSpritePsoDesc, IID_PPV_ARGS(&mPSOs["treeSprites"])));
+	//ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&treeSpritePsoDesc, IID_PPV_ARGS(&mPSOs["treeSprites"])));
 }
 
 void Game::BuildFrameResources()
@@ -1860,220 +1125,94 @@ void Game::BuildMaterials()
 	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	grass->Roughness = 0.125f;
 
-	// This is not a good water material definition, but we do not have all the rendering
-	// tools we need (transparency, environment reflection), so we fake it for now.
-	auto water = std::make_unique<Material>();
-	water->Name = "water";
-	water->MatCBIndex = matIndex;
-	water->DiffuseSrvHeapIndex = matIndex++;
-	water->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.5f);
-	water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
-	water->Roughness = 0.0f;
+	//// This is not a good water material definition, but we do not have all the rendering
+	//// tools we need (transparency, environment reflection), so we fake it for now.
+	//auto water = std::make_unique<Material>();
+	//water->Name = "water";
+	//water->MatCBIndex = matIndex;
+	//water->DiffuseSrvHeapIndex = matIndex++;
+	//water->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.5f);
+	//water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+	//water->Roughness = 0.0f;
 
-	auto  roof = std::make_unique<Material>();
-	roof->Name = "roof";
-	roof->MatCBIndex = matIndex;
-	roof->DiffuseSrvHeapIndex = matIndex++;
-	roof->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	roof->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	roof->Roughness = 0.25f;
+	//auto  roof = std::make_unique<Material>();
+	//roof->Name = "roof";
+	//roof->MatCBIndex = matIndex;
+	//roof->DiffuseSrvHeapIndex = matIndex++;
+	//roof->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	//roof->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	//roof->Roughness = 0.25f;
 
-	auto building = std::make_unique<Material>();
-	building->Name = "building";
-	building->MatCBIndex = matIndex;
-	building->DiffuseSrvHeapIndex = matIndex++;
-	building->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	building->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	building->Roughness = 0.125f;
+	//auto building = std::make_unique<Material>();
+	//building->Name = "building";
+	//building->MatCBIndex = matIndex;
+	//building->DiffuseSrvHeapIndex = matIndex++;
+	//building->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	//building->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	//building->Roughness = 0.125f;
 
-	auto concrete = std::make_unique<Material>();
-	concrete->Name = "concrete";
-	concrete->MatCBIndex = matIndex;
-	concrete->DiffuseSrvHeapIndex = matIndex++;
-	concrete->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	concrete->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	concrete->Roughness = 0.125f;
+	//auto concrete = std::make_unique<Material>();
+	//concrete->Name = "concrete";
+	//concrete->MatCBIndex = matIndex;
+	//concrete->DiffuseSrvHeapIndex = matIndex++;
+	//concrete->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	//concrete->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	//concrete->Roughness = 0.125f;
 
-	auto brick = std::make_unique<Material>();
-	brick->Name = "brick";
-	brick->MatCBIndex = matIndex;
-	brick->DiffuseSrvHeapIndex = matIndex++;
-	brick->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	brick->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	brick->Roughness = 0.125f;
+	//auto brick = std::make_unique<Material>();
+	//brick->Name = "brick";
+	//brick->MatCBIndex = matIndex;
+	//brick->DiffuseSrvHeapIndex = matIndex++;
+	//brick->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	//brick->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	//brick->Roughness = 0.125f;
 
-	auto wirefence = std::make_unique<Material>();
-	wirefence->Name = "wirefence";
-	wirefence->MatCBIndex = matIndex;
-	wirefence->DiffuseSrvHeapIndex = matIndex++;
-	wirefence->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	wirefence->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	wirefence->Roughness = 0.25f;
+	//auto wirefence = std::make_unique<Material>();
+	//wirefence->Name = "wirefence";
+	//wirefence->MatCBIndex = matIndex;
+	//wirefence->DiffuseSrvHeapIndex = matIndex++;
+	//wirefence->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	//wirefence->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	//wirefence->Roughness = 0.25f;
 
-	auto road = std::make_unique<Material>();
-	road->Name = "road";
-	road->MatCBIndex = matIndex;
-	road->DiffuseSrvHeapIndex = matIndex++;
-	road->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	road->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	road->Roughness = 0.125f;
+	//auto road = std::make_unique<Material>();
+	//road->Name = "road";
+	//road->MatCBIndex = matIndex;
+	//road->DiffuseSrvHeapIndex = matIndex++;
+	//road->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	//road->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	//road->Roughness = 0.125f;
 
-	auto roadI = std::make_unique<Material>();
-	roadI->Name = "roadI";
-	roadI->MatCBIndex = matIndex;
-	roadI->DiffuseSrvHeapIndex = matIndex++;
-	roadI->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	roadI->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	roadI->Roughness = 0.125f;
+	//auto roadI = std::make_unique<Material>();
+	//roadI->Name = "roadI";
+	//roadI->MatCBIndex = matIndex;
+	//roadI->DiffuseSrvHeapIndex = matIndex++;
+	//roadI->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	//roadI->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	//roadI->Roughness = 0.125f;
 
 
-	auto treeSprites = std::make_unique<Material>();
-	treeSprites->Name = "treeSprites";
-	treeSprites->MatCBIndex = matIndex;
-	treeSprites->DiffuseSrvHeapIndex = matIndex++;
-	treeSprites->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	treeSprites->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	treeSprites->Roughness = 0.125f;
+	//auto treeSprites = std::make_unique<Material>();
+	//treeSprites->Name = "treeSprites";
+	//treeSprites->MatCBIndex = matIndex;
+	//treeSprites->DiffuseSrvHeapIndex = matIndex++;
+	//treeSprites->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	//treeSprites->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	//treeSprites->Roughness = 0.125f;
 
 	mMaterials["grass"] = std::move(grass);
-	mMaterials["water"] = std::move(water);
-	mMaterials["roof"] = std::move(roof);
-	mMaterials["building"] = std::move(building);
-	mMaterials["concrete"] = std::move(concrete);
-	mMaterials["brick"] = std::move(brick);
-	mMaterials["wirefence"] = std::move(wirefence);
-	mMaterials["road"] = std::move(road);
-	mMaterials["roadI"] = std::move(roadI);
-	mMaterials["treeSprites"] = std::move(treeSprites);
+	//mMaterials["water"] = std::move(water);
+	//mMaterials["roof"] = std::move(roof);
+	//mMaterials["building"] = std::move(building);
+	//mMaterials["concrete"] = std::move(concrete);
+	//mMaterials["brick"] = std::move(brick);
+	//mMaterials["wirefence"] = std::move(wirefence);
+	//mMaterials["road"] = std::move(road);
+	//mMaterials["roadI"] = std::move(roadI);
+	//mMaterials["treeSprites"] = std::move(treeSprites);
 
 }
 
-void Game::BuildRenderPyra(float x, float y, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex)
-{
-	auto Pyramid1Ritem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&Pyramid1Ritem->World, XMMatrixScaling(scalex * scaleFactor, scaley * scaleFactor, scalez * scaleFactor) * XMMatrixTranslation(x * scaleFactor, y * scaleFactor, z * scaleFactor));/// can choose your scaling here
-	Pyramid1Ritem->ObjCBIndex = ObjCBIndex++; /// have to change the object index for it to work
-	Pyramid1Ritem->Mat = mMaterials["roof"].get();
-	Pyramid1Ritem->Geo = mGeometries["buildingsGeo"].get();
-	Pyramid1Ritem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	Pyramid1Ritem->IndexCount = Pyramid1Ritem->Geo->DrawArgs["buildingPyramid"].IndexCount;
-	Pyramid1Ritem->StartIndexLocation = Pyramid1Ritem->Geo->DrawArgs["buildingPyramid"].StartIndexLocation;
-	Pyramid1Ritem->BaseVertexLocation = Pyramid1Ritem->Geo->DrawArgs["buildingPyramid"].BaseVertexLocation;
-	mRitemLayer[(int)RenderLayer::Opaque].push_back(Pyramid1Ritem.get());
-	mAllRitems.push_back(std::move(Pyramid1Ritem));
-}
-
-void Game::BuildRenderFlatTopPyra(float x, float y, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex)
-{
-	auto FlatPyramid2Ritem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&FlatPyramid2Ritem->World, XMMatrixScaling(scalex * scaleFactor, scaley * scaleFactor, scalez * scaleFactor) * XMMatrixTranslation(x * scaleFactor, y * scaleFactor, z * scaleFactor));/// can choose your scaling here
-	FlatPyramid2Ritem->ObjCBIndex = ObjCBIndex++; /// have to change the object index for it to work
-	FlatPyramid2Ritem->Mat = mMaterials["roof"].get();
-	FlatPyramid2Ritem->Geo = mGeometries["buildingsGeo"].get();
-	FlatPyramid2Ritem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	FlatPyramid2Ritem->IndexCount = FlatPyramid2Ritem->Geo->DrawArgs["buildingFlatPyramid"].IndexCount;
-	FlatPyramid2Ritem->StartIndexLocation = FlatPyramid2Ritem->Geo->DrawArgs["buildingFlatPyramid"].StartIndexLocation;
-	FlatPyramid2Ritem->BaseVertexLocation = FlatPyramid2Ritem->Geo->DrawArgs["buildingFlatPyramid"].BaseVertexLocation;
-	mRitemLayer[(int)RenderLayer::Opaque].push_back(FlatPyramid2Ritem.get());
-	mAllRitems.push_back(std::move(FlatPyramid2Ritem));
-}
-
-void Game::BuildRenderBuilding(float x, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex)
-{
-	auto Building1Ritem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&Building1Ritem->World, XMMatrixScaling(scalex * scaleFactor, scaley * scaleFactor, scalez * scaleFactor) * XMMatrixTranslation(x * scaleFactor, scaley / 2.0f * scaleFactor, z * scaleFactor));/// can choose your scaling here
-	XMStoreFloat4x4(&Building1Ritem->TexTransform, XMMatrixScaling(scalex, scaley, scalez));
-	Building1Ritem->ObjCBIndex = ObjCBIndex++; /// have to change the object index for it to work
-	switch (MathHelper::Rand(0, 1))
-	{
-	case 0:
-		Building1Ritem->Mat = mMaterials["brick"].get();
-		break;
-	default:
-		Building1Ritem->Mat = mMaterials["building"].get();
-		break;
-	}
-	//Building1Ritem->Mat = mMaterials["building"].get();
-	Building1Ritem->Geo = mGeometries["buildingsGeo"].get();
-	Building1Ritem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	Building1Ritem->IndexCount = Building1Ritem->Geo->DrawArgs["buildingBox"].IndexCount;
-	Building1Ritem->StartIndexLocation = Building1Ritem->Geo->DrawArgs["buildingBox"].StartIndexLocation;
-	Building1Ritem->BaseVertexLocation = Building1Ritem->Geo->DrawArgs["buildingBox"].BaseVertexLocation;
-	mRitemLayer[(int)RenderLayer::Opaque].push_back(Building1Ritem.get());
-	mAllRitems.push_back(std::move(Building1Ritem));
-
-	switch (MathHelper::Rand(0, 2))
-	{
-	case 0:
-		BuildRenderFlatTopPyra(x, scaley + (scaley * 0.05), z, scalex, scaley * 0.1, scalez, ObjCBIndex);
-		break;
-	case 1:
-		BuildRenderPyra(x, scaley + (scaley * 0.05), z, scalex, scaley * 0.1, scalez, ObjCBIndex);
-		break;
-	case 2:
-	{
-		auto boxRitem = std::make_unique<RenderItem>();
-		XMStoreFloat4x4(&boxRitem->World, XMMatrixScaling(scalex * scaleFactor, 0.2 * scaleFactor, scalez * scaleFactor) * XMMatrixTranslation(x * scaleFactor, (scaley + 0.1) * scaleFactor, z * scaleFactor));/// can choose your scaling here
-		XMStoreFloat4x4(&boxRitem->TexTransform, XMMatrixScaling(1, 1, 1));
-		boxRitem->ObjCBIndex = ObjCBIndex++; /// have to change the object index for it to work
-		boxRitem->Mat = mMaterials["concrete"].get();
-		boxRitem->Geo = mGeometries["buildingsGeo"].get();
-		boxRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		boxRitem->IndexCount = boxRitem->Geo->DrawArgs["buildingBox"].IndexCount;
-		boxRitem->StartIndexLocation = boxRitem->Geo->DrawArgs["buildingBox"].StartIndexLocation;
-		boxRitem->BaseVertexLocation = boxRitem->Geo->DrawArgs["buildingBox"].BaseVertexLocation;
-		mRitemLayer[(int)RenderLayer::Opaque].push_back(boxRitem.get());
-		mAllRitems.push_back(std::move(boxRitem));
-		break;
-	}
-	default:
-		//BuildRenderFlatTopPyra(x, scaley + (scaley * 0.05), z, scalex, scaley * 0.1, scalez, ObjCBIndex);
-		break;
-	}
-
-	BoundingBox bounds;
-	XMFLOAT3 centerf3(x * scaleFactor, scaley / 2.0f * scaleFactor, z * scaleFactor);
-	XMVECTOR center = XMLoadFloat3(&centerf3);
-	XMFLOAT3 extentsf3(scalex * scaleFactor /2  , scaley * scaleFactor /2, scalez * scaleFactor /2);
-	XMVECTOR extents = XMLoadFloat3(&extentsf3);
-	XMStoreFloat3(&bounds.Center, center);
-	XMStoreFloat3(&bounds.Extents, extents);
-	mBoundingBoxes.push_back(bounds);
-	
-}
-
-void Game::BuildRenderRoad(float x, float z, float length, float width, float angle, UINT& ObjCBIndex)
-{
-	auto Building1Ritem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&Building1Ritem->World, XMMatrixScaling(width * scaleFactor, 0.02 * scaleFactor, length * scaleFactor) * XMMatrixRotationY(angle * 0.0174533) * XMMatrixTranslation(x * scaleFactor, 0.01 * scaleFactor, z * scaleFactor));/// can choose your scaling here
-	XMStoreFloat4x4(&Building1Ritem->TexTransform, XMMatrixScaling(2.0f, length * 2.0f, 1.0f));
-	Building1Ritem->ObjCBIndex = ObjCBIndex++; /// have to change the object index for it to work
-	Building1Ritem->Mat = mMaterials["road"].get();
-	Building1Ritem->Geo = mGeometries["buildingsGeo"].get();
-	Building1Ritem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	Building1Ritem->IndexCount = Building1Ritem->Geo->DrawArgs["buildingBox"].IndexCount;
-	Building1Ritem->StartIndexLocation = Building1Ritem->Geo->DrawArgs["buildingBox"].StartIndexLocation;
-	Building1Ritem->BaseVertexLocation = Building1Ritem->Geo->DrawArgs["buildingBox"].BaseVertexLocation;
-	mRitemLayer[(int)RenderLayer::Opaque].push_back(Building1Ritem.get());
-	mAllRitems.push_back(std::move(Building1Ritem));
-}
-
-void Game::BuildRenderIntersection(float x, float z, float scalex, float scalez, UINT& ObjCBIndex)
-{
-	auto Building1Ritem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&Building1Ritem->World, XMMatrixScaling(scalex * scaleFactor, 0.03 * scaleFactor, scalez * scaleFactor) * XMMatrixTranslation(x * scaleFactor, 0.01 * scaleFactor, z * scaleFactor));/// can choose your scaling here
-	XMStoreFloat4x4(&Building1Ritem->TexTransform, XMMatrixScaling(1.0, 1.0, 1.0));
-	Building1Ritem->ObjCBIndex = ObjCBIndex++; /// have to change the object index for it to work
-	Building1Ritem->Mat = mMaterials["roadI"].get();
-	Building1Ritem->Geo = mGeometries["buildingsGeo"].get();
-	Building1Ritem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	Building1Ritem->IndexCount = Building1Ritem->Geo->DrawArgs["buildingBox"].IndexCount;
-	Building1Ritem->StartIndexLocation = Building1Ritem->Geo->DrawArgs["buildingBox"].StartIndexLocation;
-	Building1Ritem->BaseVertexLocation = Building1Ritem->Geo->DrawArgs["buildingBox"].BaseVertexLocation;
-	mRitemLayer[(int)RenderLayer::Opaque].push_back(Building1Ritem.get());
-	mAllRitems.push_back(std::move(Building1Ritem));
-
-}
 
 void Game::BuildRenderItems()
 {
@@ -2090,7 +1229,6 @@ void Game::BuildRenderItems()
 	//gridRitem->IndexCount = gridRitem->Geo->DrawArgs["grid"].IndexCount;
 	//gridRitem->StartIndexLocation = gridRitem->Geo->DrawArgs["grid"].StartIndexLocation;
 	//gridRitem->BaseVertexLocation = gridRitem->Geo->DrawArgs["grid"].BaseVertexLocation;
-
 	//mRitemLayer[(int)RenderLayer::Opaque].push_back(gridRitem.get());
 	//mAllRitems.push_back(std::move(gridRitem));
 
