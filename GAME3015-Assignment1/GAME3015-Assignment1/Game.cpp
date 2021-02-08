@@ -10,6 +10,7 @@
 #include "FrameResource.h"
 #include "Waves.h"
 #include "SceneNode.h"
+#include "World.h"
 #include <ctime>
 
 using Microsoft::WRL::ComPtr;
