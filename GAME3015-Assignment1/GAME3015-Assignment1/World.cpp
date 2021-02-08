@@ -67,6 +67,42 @@ void World::loadTextures(std::unordered_map<std::string, std::unique_ptr<Texture
 	Textures[RaptorTex->Name] = std::move(RaptorTex);
 }
 
+void World::buildMaterials(std::unordered_map<std::string, std::unique_ptr<Material>>& Materials)
+{
+	int matIndex = 0;
+	auto BackgroundTex = std::make_unique<Material>();
+	BackgroundTex->Name = "BackgroundTex";
+	BackgroundTex->MatCBIndex = matIndex;
+	BackgroundTex->DiffuseSrvHeapIndex = matIndex++;
+	BackgroundTex->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	BackgroundTex->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	BackgroundTex->Roughness = 0.125f;
+
+
+
+	auto Eagle = std::make_unique<Material>();
+	Eagle->Name = "Eagle";
+	Eagle->MatCBIndex = matIndex;
+	Eagle->DiffuseSrvHeapIndex = matIndex++;
+	Eagle->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	Eagle->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	Eagle->Roughness = 0.25f;
+
+	auto Raptor = std::make_unique<Material>();
+	Raptor->Name = "Raptor";
+	Raptor->MatCBIndex = matIndex;
+	Raptor->DiffuseSrvHeapIndex = matIndex++;
+	Raptor->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	Raptor->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	Raptor->Roughness = 0.125f;
+
+
+
+	Materials["BackgroundTex"] = std::move(BackgroundTex);
+	Materials["EagleTex"] = std::move(Eagle);
+	Materials["RaptorTex"] = std::move(Raptor);
+}
+
 void World::buildScene(std::vector<std::unique_ptr<RenderItem>>& renderList, std::unordered_map<std::string, std::unique_ptr<Material>>& Materials,
 	std::unordered_map<std::string, std::unique_ptr<Texture>>& Textures,
 	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& Geometries,

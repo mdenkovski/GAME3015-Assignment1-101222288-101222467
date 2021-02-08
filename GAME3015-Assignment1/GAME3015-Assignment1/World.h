@@ -36,6 +36,7 @@ public:
 
 public:
 	void								loadTextures(std::unordered_map<std::string, std::unique_ptr<Texture>>& Textures, Microsoft::WRL::ComPtr<ID3D12Device> Device, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList);
+	void								buildMaterials(std::unordered_map<std::string, std::unique_ptr<Material>>& Materials);
 	void								buildScene(std::vector<std::unique_ptr<RenderItem>>& renderList, std::unordered_map<std::string, std::unique_ptr<Material>>& Materials,
 													std::unordered_map<std::string, std::unique_ptr<Texture>>& Textures,
 													std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& Geometries,

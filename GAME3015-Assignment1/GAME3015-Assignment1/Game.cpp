@@ -253,7 +253,8 @@ void Game::Update(const GameTimer& gt)
 	UpdateMaterialCBs(gt);
 	UpdateMainPassCB(gt);
 
-	MoveGameObjects(gt);
+	GameWorld.update(gt, mAllRitems);
+
 }
 
 void Game::Draw(const GameTimer& gt)
@@ -654,7 +655,7 @@ void Game::UpdateMainPassCB(const GameTimer& gt)
 
 void Game::MoveGameObjects(const GameTimer& gt)
 {
-	GameWorld.update(gt, mAllRitems);
+	//GameWorld.update(gt, mAllRitems);
 
 	////check if plane is at edge
 	//if (XMVectorGetX(plane.position) > 1.8 || XMVectorGetX(plane.position) < -1.8 )
@@ -994,7 +995,9 @@ void Game::BuildFrameResources()
 
 void Game::BuildMaterials()
 {
-	int matIndex = 0;
+	GameWorld.buildMaterials(mMaterials);
+
+	/*int matIndex = 0;
 	auto BackgroundTex = std::make_unique<Material>();
 	BackgroundTex->Name = "BackgroundTex";
 	BackgroundTex->MatCBIndex = matIndex;
@@ -1025,7 +1028,7 @@ void Game::BuildMaterials()
 
 	mMaterials["BackgroundTex"] = std::move(BackgroundTex);
 	mMaterials["EagleTex"] = std::move(Eagle);
-	mMaterials["RaptorTex"] = std::move(Raptor);
+	mMaterials["RaptorTex"] = std::move(Raptor);*/
 	
 
 }
