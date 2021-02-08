@@ -8,6 +8,7 @@
 //#include "FrameResource.h"
 //#include "Waves.h"
 //#include <ctime>
+#include <vector>
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -62,20 +63,21 @@ public:
 	void					attachChild(Ptr child);
 	Ptr						detachChild(const SceneNode& node);
 
-	void					update(GameTimer dt);
+	void					update(GameTimer dt, std::vector<std::unique_ptr<RenderItem>>& renderList);
 
 	XMVECTOR			getWorldPosition() const;
 	XMVECTOR			getWorldTransform() const;
 
-	
+	std::unique_ptr<RenderItem> renderItem;
+	int renderIndex;
 
 private:
-	virtual void			updateCurrent(GameTimer dt);
-	void					updateChildren(GameTimer dt);
+	virtual void			updateCurrent(GameTimer dt, std::vector<std::unique_ptr<RenderItem>>& renderList);
+	void					updateChildren(GameTimer dt, std::vector<std::unique_ptr<RenderItem>>& renderList);
 
-	virtual void			draw(ID3D12GraphicsCommandList* cmdList, RenderItem* ritems) const;
-	virtual void			drawCurrent(ID3D12GraphicsCommandList* cmdList, RenderItem* ritems) const;
-	void					drawChildren(ID3D12GraphicsCommandList* cmdList, RenderItem* ritems) const;
+	virtual void			draw(ID3D12GraphicsCommandList* cmdList, RenderItem& ritems) ;
+	virtual void			drawCurrent(ID3D12GraphicsCommandList* cmdList, RenderItem& ritems) ;
+	void					drawChildren(ID3D12GraphicsCommandList* cmdList, RenderItem& ritems) ;
 
 
 private:

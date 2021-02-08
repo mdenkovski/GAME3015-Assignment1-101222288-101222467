@@ -12,6 +12,7 @@
 #include "SceneNode.h"
 #include "World.h"
 #include <ctime>
+#include "Aircraft.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -186,6 +187,8 @@ private:
 
 	POINT mLastMousePos;
 
+
+	Aircraft mPlane;
 
 	GameObject plane;
 	GameObject leftPlane;
@@ -732,6 +735,9 @@ void Game::MoveGameObjects(const GameTimer& gt)
 		background.position = XMVECTOR{ 0, 0, 0 };
 	}
 
+
+	mPlane.update(gt, mAllRitems);
+	mPlane.Update();
 
 	//move the main plane
 	XMVECTOR displacement = plane.velocity * gt.DeltaTime();
@@ -1399,10 +1405,30 @@ void Game::BuildRenderItems()
 	//mRitemLayer[(int)RenderLayer::Opaque].push_back(groundRitem.get());
 	//mAllRitems.push_back(std::move(groundRitem));
 
+	
+	mPlane.renderItem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&mPlane.renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(0.0f, 1, 0.0f));/// can choose your scaling here
+	XMVECTOR spawnpoint = { 0.0f, 1.0f, 0.0f };
+	mPlane.mPosition = spawnpoint;
+	mPlane.mVelocity = { 0.5f, 0.0f, 0.0f };
+	//XMStorevector(&mPlane.position, spawnpoint);
+	XMStoreFloat4x4(&mPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	mPlane.renderItem->ObjCBIndex = objCBIndex++;
+	mPlane.renderItem->Mat = mMaterials["RaptorTex"].get();
+	mPlane.renderItem->Geo = mGeometries["groundGeo"].get();
+	mPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	mPlane.renderItem->IndexCount = mPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
+	mPlane.renderItem->StartIndexLocation = mPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	mPlane.renderItem->BaseVertexLocation = mPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
+
+	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(mPlane.renderItem.get());
+	mAllRitems.push_back(std::move(mPlane.renderItem));
+	mPlane.renderIndex = mAllRitems.size() - 1;
+
 
 	plane.renderItem = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&plane.renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f ) * XMMatrixTranslation(-1.0f , 1 , -1 ));/// can choose your scaling here
-	XMVECTOR spawnpoint = { -1.0f , 1, -1  };
+	spawnpoint = { -1.0f , 1, -1  };
 	plane.position = spawnpoint;
 	plane.velocity = {0.5f, 0.0f, 0.0f};
 	//XMStorevector(&plane.position, spawnpoint);
