@@ -17,6 +17,16 @@ void World::update(GameTimer dt, std::vector<std::unique_ptr<RenderItem>>& rende
 		rightPlane->mVelocity *= -1;
 	}
 
+	if (XMVectorGetZ(background.mPosition) < -12)
+	{
+		background.mPosition = { XMVectorGetX(background.mPosition) , XMVectorGetY(background.mPosition) , 12 };
+	}
+
+	if (XMVectorGetZ(background2.mPosition) < -12)
+	{
+		background2.mPosition = { XMVectorGetX(background2.mPosition) , XMVectorGetY(background2.mPosition) , 12 };
+	}
+
 	mPlane->update(dt, renderList);
 	//mPlane->Update();
 
@@ -28,6 +38,7 @@ void World::update(GameTimer dt, std::vector<std::unique_ptr<RenderItem>>& rende
 
 
 	background.update(dt, renderList);
+	background2.update(dt, renderList);
 	
 
 	// Apply movements
@@ -101,6 +112,28 @@ void World::buildScene(std::vector<std::unique_ptr<RenderItem>>& renderList, std
 	RitemLayer[(int)RenderLayer::Opaque].push_back(background.renderItem.get());
 	renderList.push_back(std::move(background.renderItem));
 	background.renderIndex = renderList.size() - 1;
+
+	background2.renderItem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&background2.renderItem->World, XMMatrixScaling(1.0f, 1.0f, 1.0f) * XMMatrixTranslation(0.0f, 0, 12));/// can choose your scaling here
+	XMStoreFloat4x4(&background2.renderItem->TexTransform, XMMatrixScaling(10.0f, 10.0f, 10.0f));
+	XMVECTOR spawnpointbackground2 = { 0, 0, 12 };
+	background2.mPosition = spawnpointbackground2;
+	background2.mVelocity = { 0.0f, 0.0f, -0.5f };
+	background2.Scale = { 1.0f, 1.0f, 1.0f };
+	background2.renderItem->ObjCBIndex = objCBIndex++;
+	background2.renderItem->Mat = Materials["BackgroundTex"].get();
+	background2.renderItem->Geo = Geometries["groundGeo"].get();
+	background2.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	background2.renderItem->IndexCount = background2.renderItem->Geo->DrawArgs["ground"].IndexCount;
+	background2.renderItem->StartIndexLocation = background2.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	background2.renderItem->BaseVertexLocation = background2.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
+
+	RitemLayer[(int)RenderLayer::Opaque].push_back(background2.renderItem.get());
+	renderList.push_back(std::move(background2.renderItem));
+	background2.renderIndex = renderList.size() - 1;
+
+
+
 	
 	//make the main plane
 	mPlane->renderItem = std::make_unique<RenderItem>();

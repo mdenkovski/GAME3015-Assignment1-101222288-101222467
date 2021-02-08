@@ -64,5 +64,6 @@ private:
 	Aircraft* leftPlane;
 	Aircraft* rightPlane;
 	Entity background;
+	Entity background2;
 };
 

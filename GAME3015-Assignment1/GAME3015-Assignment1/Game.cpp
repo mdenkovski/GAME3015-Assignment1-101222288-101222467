@@ -654,50 +654,7 @@ void Game::UpdateMainPassCB(const GameTimer& gt)
 
 void Game::MoveGameObjects(const GameTimer& gt)
 {
-	GameWorld.update(gt, mAllRitems);
-
-	////check if plane is at edge
-	//if (XMVectorGetX(plane.position) > 1.8 || XMVectorGetX(plane.position) < -1.8 )
-	//{
-	//	plane.velocity *= -1;
-	//	leftPlane.velocity *= -1;
-	//	rightPlane.velocity *= -1;
-	//}
-
-	
-
-	////move the main plane
-	//XMVECTOR displacement = plane.velocity * gt.DeltaTime();
-	//plane.position = XMVectorAdd(plane.position, displacement);
-	//plane.renderItem = std::move(mAllRitems[plane.renderIndex]);
-	//plane.renderItem->NumFramesDirty = 1;
-	//XMStoreFloat4x4(&plane.renderItem->World, XMMatrixScaling(0.01f , 0.01f , 0.01f ) * XMMatrixTranslationFromVector(plane.position));
-	//mAllRitems[plane.renderIndex] = std::move(plane.renderItem);
-
-	////move the supporting planes
-	//displacement = leftPlane.velocity * gt.DeltaTime(); 
-	//leftPlane.position = XMVectorAdd(leftPlane.position, displacement);
-	//leftPlane.renderItem = std::move(mAllRitems[leftPlane.renderIndex]);
-	//leftPlane.renderItem->NumFramesDirty = 1;
-	//XMStoreFloat4x4(&leftPlane.renderItem->World, XMMatrixScaling(0.01f, 0.01f , 0.01f ) * XMMatrixTranslationFromVector(leftPlane.position));
-	//mAllRitems[leftPlane.renderIndex] = std::move(leftPlane.renderItem);
-
-	//displacement = rightPlane.velocity * gt.DeltaTime();
-	//rightPlane.position = XMVectorAdd(rightPlane.position, displacement);
-	//rightPlane.renderItem = std::move(mAllRitems[rightPlane.renderIndex]);
-	//rightPlane.renderItem->NumFramesDirty = 1;
-	//XMStoreFloat4x4(&rightPlane.renderItem->World, XMMatrixScaling(0.01f , 0.01f, 0.01f) * XMMatrixTranslationFromVector(rightPlane.position));
-	//mAllRitems[rightPlane.renderIndex] = std::move(rightPlane.renderItem);
-
-	////move the background down
-	//displacement = background.velocity * gt.DeltaTime();
-	//background.position = XMVectorAdd(background.position, displacement);
-	//background.renderItem = std::move(mAllRitems[background.renderIndex]);
-	//background.renderItem->NumFramesDirty = 1;
-	//XMStoreFloat4x4(&background.renderItem->World, XMMatrixScaling(1.0f , 1.0f , 1.0f ) * XMMatrixTranslationFromVector(background.position));
-	//mAllRitems[background.renderIndex] = std::move(background.renderItem);
-
-	
+	GameWorld.update(gt, mAllRitems);	
 }
 
 void Game::LoadTextures()
