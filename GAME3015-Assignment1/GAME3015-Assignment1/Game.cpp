@@ -68,6 +68,7 @@ enum class RenderLayer : int
 struct GameObject
 {
 	XMVECTOR position;
+	XMVECTOR velocity;
 	std::unique_ptr<RenderItem> renderItem;
 };
 
@@ -185,7 +186,6 @@ private:
 	float scaleFactor = 10.0f;
 
 	GameObject plane;
-	float speed = 10;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -709,7 +709,7 @@ void Game::UpdateMainPassCB(const GameTimer& gt)
 
 void Game::MoveGameObjects(const GameTimer& gt)
 {
-	XMVECTOR displacement = { speed * gt.DeltaTime(), 0, 0 };
+	XMVECTOR displacement = plane.velocity * gt.DeltaTime();
 	plane.position = XMVectorAdd(plane.position, displacement);
 	plane.renderItem = std::move(mAllRitems[1]);
 	plane.renderItem->NumFramesDirty = 1;
@@ -1323,6 +1323,7 @@ void Game::BuildRenderItems()
 	XMStoreFloat4x4(&plane.renderItem->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor) * XMMatrixTranslation(-1.0f * scaleFactor, 1 * scaleFactor, -1 * scaleFactor));/// can choose your scaling here
 	XMVECTOR spawnpoint = { -1.0f * scaleFactor, 1 * scaleFactor, -1 * scaleFactor };
 	plane.position = spawnpoint;
+	plane.velocity = {5.0f, 0.0f, 0.0f};
 	//XMStorevector(&plane.position, spawnpoint);
 	XMStoreFloat4x4(&plane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	plane.renderItem->ObjCBIndex = objCBIndex++;
