@@ -20,6 +20,8 @@ using namespace DirectX::PackedVector;
 
 const int gNumFrameResources = 3;
 
+
+
 // Lightweight structure stores parameters to draw a shape.  This will
 // vary from app-to-app.
 struct RenderItem
@@ -63,6 +65,12 @@ enum class RenderLayer : int
 	Count
 };
 
+struct GameObject
+{
+	XMVECTOR position;
+	std::unique_ptr<RenderItem> renderItem;
+};
+
 class Game : public D3DApp
 {
 public:
@@ -89,6 +97,8 @@ private:
 	void UpdateMaterialCBs(const GameTimer& gt);
 	void UpdateMainPassCB(const GameTimer& gt);
 	void UpdateWaves(const GameTimer& gt);
+
+	void MoveGameObjects(const GameTimer& gt);
 
 	void LoadTextures();
 	void BuildRootSignature();
@@ -173,6 +183,9 @@ private:
 	POINT mLastMousePos;
 
 	float scaleFactor = 10.0f;
+
+	GameObject plane;
+	float speed = 10;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -294,6 +307,8 @@ void Game::Update(const GameTimer& gt)
 	UpdateObjectCBs(gt);
 	UpdateMaterialCBs(gt);
 	UpdateMainPassCB(gt);
+
+	MoveGameObjects(gt);
 }
 
 void Game::Draw(const GameTimer& gt)
@@ -690,6 +705,41 @@ void Game::UpdateMainPassCB(const GameTimer& gt)
 
 	auto currPassCB = mCurrFrameResource->PassCB.get();
 	currPassCB->CopyData(0, mMainPassCB);
+}
+
+void Game::MoveGameObjects(const GameTimer& gt)
+{
+	XMVECTOR displacement = { speed * gt.DeltaTime(), 0, 0 };
+	plane.position = XMVectorAdd(plane.position, displacement);
+	plane.renderItem = std::move(mAllRitems[1]);
+	plane.renderItem->NumFramesDirty = 1;
+	XMStoreFloat4x4(&plane.renderItem->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor) * XMMatrixTranslationFromVector(plane.position));
+	mAllRitems[1] = std::move(plane.renderItem);
+
+
+	//auto currObjectCB = mCurrFrameResource->ObjectCB.get();
+	//for (auto& e : mAllRitems)
+	//{
+	//	// Only update the cbuffer data if the constants have changed.  
+	//	// This needs to be tracked per frame resource.
+	//	if (e->NumFramesDirty > 0)
+	//	{
+	//		XMMATRIX world = XMLoadFloat4x4(&e->World);
+	//		XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
+
+	//		ObjectConstants objConstants;
+	//		XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
+	//		XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
+
+	//		currObjectCB->CopyData(e->ObjCBIndex, objConstants);
+
+	//		// Next FrameResource need to be updated too.
+	//		e->NumFramesDirty--;
+	//	}
+	//}
+
+	/*mAllRitems.
+	mAllRitems.push_back(std::move(plane.renderItem));*/
 }
 
 void Game::LoadTextures()
@@ -1102,28 +1152,28 @@ void Game::BuildPSOs()
 	////
 	//// PSO for tree sprites
 	////
-	//D3D12_GRAPHICS_PIPELINE_STATE_DESC treeSpritePsoDesc = opaquePsoDesc;
-	//treeSpritePsoDesc.VS =
-	//{
-	//	reinterpret_cast<BYTE*>(mShaders["treeSpriteVS"]->GetBufferPointer()),
-	//	mShaders["treeSpriteVS"]->GetBufferSize()
-	//};
-	//treeSpritePsoDesc.GS =
-	//{
-	//	reinterpret_cast<BYTE*>(mShaders["treeSpriteGS"]->GetBufferPointer()),
-	//	mShaders["treeSpriteGS"]->GetBufferSize()
-	//};
-	//treeSpritePsoDesc.PS =
-	//{
-	//	reinterpret_cast<BYTE*>(mShaders["treeSpritePS"]->GetBufferPointer()),
-	//	mShaders["treeSpritePS"]->GetBufferSize()
-	//};
-	////step1
-	//treeSpritePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-	//treeSpritePsoDesc.InputLayout = { mTreeSpriteInputLayout.data(), (UINT)mTreeSpriteInputLayout.size() };
-	//treeSpritePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC treeSpritePsoDesc = opaquePsoDesc;
+	treeSpritePsoDesc.VS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["treeSpriteVS"]->GetBufferPointer()),
+		mShaders["treeSpriteVS"]->GetBufferSize()
+	};
+	treeSpritePsoDesc.GS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["treeSpriteGS"]->GetBufferPointer()),
+		mShaders["treeSpriteGS"]->GetBufferSize()
+	};
+	treeSpritePsoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["treeSpritePS"]->GetBufferPointer()),
+		mShaders["treeSpritePS"]->GetBufferSize()
+	};
+	//step1
+	treeSpritePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	treeSpritePsoDesc.InputLayout = { mTreeSpriteInputLayout.data(), (UINT)mTreeSpriteInputLayout.size() };
+	treeSpritePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 
-	//ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&treeSpritePsoDesc, IID_PPV_ARGS(&mPSOs["treeSprites"])));
+	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&treeSpritePsoDesc, IID_PPV_ARGS(&mPSOs["treeSprites"])));
 }
 
 void Game::BuildFrameResources()
@@ -1268,6 +1318,29 @@ void Game::BuildRenderItems()
 	mRitemLayer[(int)RenderLayer::Opaque].push_back(groundRitem.get());
 	mAllRitems.push_back(std::move(groundRitem));
 
+
+	plane.renderItem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&plane.renderItem->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor) * XMMatrixTranslation(-1.0f * scaleFactor, 1 * scaleFactor, -1 * scaleFactor));/// can choose your scaling here
+	XMVECTOR spawnpoint = { -1.0f * scaleFactor, 1 * scaleFactor, -1 * scaleFactor };
+	plane.position = spawnpoint;
+	//XMStorevector(&plane.position, spawnpoint);
+	XMStoreFloat4x4(&plane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	plane.renderItem->ObjCBIndex = objCBIndex++;
+	plane.renderItem->Mat = mMaterials["RaptorTex"].get();
+	plane.renderItem->Geo = mGeometries["groundGeo"].get();
+	plane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	plane.renderItem->IndexCount = plane.renderItem->Geo->DrawArgs["ground"].IndexCount;
+	plane.renderItem->StartIndexLocation = plane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	plane.renderItem->BaseVertexLocation = plane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
+
+	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(plane.renderItem.get());
+	mAllRitems.push_back(std::move(plane.renderItem));
+
+
+
+
+
+
 	auto raptor = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&raptor->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor) * XMMatrixTranslation(0.0f * scaleFactor, 1 * scaleFactor, 0 * scaleFactor));/// can choose your scaling here
 	XMStoreFloat4x4(&raptor->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
@@ -1279,7 +1352,7 @@ void Game::BuildRenderItems()
 	raptor->StartIndexLocation = raptor->Geo->DrawArgs["ground"].StartIndexLocation;
 	raptor->BaseVertexLocation = raptor->Geo->DrawArgs["ground"].BaseVertexLocation;
 
-	mRitemLayer[(int)RenderLayer::Opaque].push_back(raptor.get());
+	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(raptor.get());
 	mAllRitems.push_back(std::move(raptor));
 
 	auto eagle = std::make_unique<RenderItem>();
@@ -1293,7 +1366,7 @@ void Game::BuildRenderItems()
 	eagle->StartIndexLocation = eagle->Geo->DrawArgs["ground"].StartIndexLocation;
 	eagle->BaseVertexLocation = eagle->Geo->DrawArgs["ground"].BaseVertexLocation;
 
-	mRitemLayer[(int)RenderLayer::Opaque].push_back(eagle.get());
+	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(eagle.get());
 	mAllRitems.push_back(std::move(eagle));
 }
 
