@@ -7,25 +7,25 @@ World::World()
 
 void World::update(GameTimer dt, std::vector<std::unique_ptr<RenderItem>>& renderList)
 {
+	if (XMVectorGetX(mPlane.mPosition) > 1.8 || XMVectorGetX(mPlane.mPosition) < -1.8)
+	{
+		mPlane.mVelocity *= -1;
+		leftPlane.mVelocity *= -1;
+		rightPlane.mVelocity *= -1;
+	}
+
 	mPlane.update(dt, renderList);
-	mPlane.Update();
+	//mPlane.Update();
+
+	leftPlane.update(dt, renderList);
+	//leftPlane.Update();
+
+	rightPlane.update(dt, renderList);
+	//rightPlane.Update();
 
 
 	background.update(dt, renderList);
-	//// Scroll the world
-	//mWorldView.move(0.f, mScrollSpeed * dt.asSeconds());
-
-	//// Move the player sidewards (plane scouts follow the main aircraft)
-	//sf::Vector2f position = mPlayerAircraft->getPosition();
-	//sf::Vector2f velocity = mPlayerAircraft->getVelocity();
-
-	//// If player touches borders, flip its X velocity
-	//if (position.x <= mWorldBounds.left + 150.f
-	//	|| position.x >= mWorldBounds.left + mWorldBounds.width - 150.f)
-	//{
-	//	velocity.x = -velocity.x;
-	//	mPlayerAircraft->setVelocity(velocity);
-	//}
+	
 
 	// Apply movements
 	mSceneGraph.update(dt, renderList);
@@ -77,9 +77,10 @@ void World::buildScene(std::vector<std::unique_ptr<RenderItem>>& renderList, std
 	renderList.push_back(std::move(background.renderItem));
 	background.renderIndex = renderList.size() - 1;
 	
+	//make the main plane
 	mPlane.renderItem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&mPlane.renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(0.0f, 1, 0.0f));/// can choose your scaling here
-	XMVECTOR spawnpoint = { 0.0f, 1.0f, 0.0f };
+	XMStoreFloat4x4(&mPlane.renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(-1.0f, 1, -1));/// can choose your scaling here
+	XMVECTOR spawnpoint = { -1.0f , 1 , -1 };
 	mPlane.mPosition = spawnpoint;
 	mPlane.mVelocity = { 0.5f, 0.0f, 0.0f };
 	mPlane.Scale = { 0.01f, 0.01f, 0.01f };
@@ -97,24 +98,47 @@ void World::buildScene(std::vector<std::unique_ptr<RenderItem>>& renderList, std
 	renderList.push_back(std::move(mPlane.renderItem));
 	mPlane.renderIndex = renderList.size() - 1;
 
-	//// Add the background sprite to the scene
-	//std::unique_ptr<SceneNode> backgroundSprite(new SceneNode());
-	//backgroundSprite->setPosition(mWorldBounds.left, mWorldBounds.top);
-	//mSceneLayers[Background]->attachChild(std::move(backgroundSprite));
+	//make the left plane
+	leftPlane.renderItem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&leftPlane.renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(-1.25f, 1, -1.25));/// can choose your scaling here
+	spawnpoint = { -1.25f , 1.0f , -1.25f };
+	leftPlane.mPosition = spawnpoint;
+	leftPlane.mVelocity = { 0.5f, 0.0f, 0.0f };
+	leftPlane.Scale = { 0.01f, 0.01f, 0.01f };
+	XMStoreFloat4x4(&leftPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	leftPlane.renderItem->ObjCBIndex = objCBIndex++;
+	leftPlane.renderItem->Mat = Materials["EagleTex"].get();
+	leftPlane.renderItem->Geo = Geometries["groundGeo"].get();
+	leftPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	leftPlane.renderItem->IndexCount = leftPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
+	leftPlane.renderItem->StartIndexLocation = leftPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	leftPlane.renderItem->BaseVertexLocation = leftPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
 
-	//// Add player's aircraft
-	//std::unique_ptr<Aircraft> leader(new Aircraft(Aircraft::Eagle, mTextures));
-	//mPlayerAircraft = leader.get();
-	//mPlayerAircraft->setPosition(mSpawnPosition);
-	//mPlayerAircraft->setVelocity(40.f, mScrollSpeed);
-	//mSceneLayers[Air]->attachChild(std::move(leader));
+	RitemLayer[(int)RenderLayer::AlphaTested].push_back(leftPlane.renderItem.get());
+	renderList.push_back(std::move(leftPlane.renderItem));
+	leftPlane.renderIndex = renderList.size() - 1;
 
-	//// Add two escorting aircrafts, placed relatively to the main plane
-	//std::unique_ptr<Aircraft> leftEscort(new Aircraft(Aircraft::Raptor, mTextures));
-	//leftEscort->setPosition(-80.f, 50.f);
-	//mPlayerAircraft->attachChild(std::move(leftEscort));
 
-	//std::unique_ptr<Aircraft> rightEscort(new Aircraft(Aircraft::Raptor, mTextures));
-	//rightEscort->setPosition(80.f, 50.f);
-	//mPlayerAircraft->attachChild(std::move(rightEscort));
+	//make the right plane
+	rightPlane.renderItem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&rightPlane.renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(-0.75f, 1, -1.25));/// can choose your scaling here
+	spawnpoint = { -0.75f , 1.0f , -1.25f };
+	rightPlane.mPosition = spawnpoint;
+	rightPlane.mVelocity = { 0.5f, 0.0f, 0.0f };
+	rightPlane.Scale = { 0.01f, 0.01f, 0.01f };
+	XMStoreFloat4x4(&rightPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	rightPlane.renderItem->ObjCBIndex = objCBIndex++;
+	rightPlane.renderItem->Mat = Materials["EagleTex"].get();
+	rightPlane.renderItem->Geo = Geometries["groundGeo"].get();
+	rightPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	rightPlane.renderItem->IndexCount = rightPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
+	rightPlane.renderItem->StartIndexLocation = rightPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	rightPlane.renderItem->BaseVertexLocation = rightPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
+
+	RitemLayer[(int)RenderLayer::AlphaTested].push_back(rightPlane.renderItem.get());
+	renderList.push_back(std::move(rightPlane.renderItem));
+	rightPlane.renderIndex = renderList.size() - 1;
+
+
+
 }
