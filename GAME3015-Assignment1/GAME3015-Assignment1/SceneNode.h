@@ -72,6 +72,7 @@ public:
 	int renderIndex;
 
 	XMVECTOR mPosition;
+	XMVECTOR Scale;
 
 private:
 	virtual void			updateCurrent(GameTimer dt, std::vector<std::unique_ptr<RenderItem>>& renderList);
