@@ -14,7 +14,6 @@ public:
 	virtual	void		updateCurrent(GameTimer dt, std::vector<std::unique_ptr<RenderItem>>& renderList);
 public:
 	XMVECTOR mVelocity;
-	
 
 //public:
 //	void				setVelocity(sf::Vector2f velocity);
