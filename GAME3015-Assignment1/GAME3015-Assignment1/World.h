@@ -9,6 +9,7 @@
 #include <ctime>
 #include "SceneNode.h"
 #include "Aircraft.h"
+#include <vector>
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -61,6 +62,8 @@ private:
 	XMVECTOR						mSpawnPosition;
 	float								mScrollSpeed;
 	Aircraft mPlane;
+	Aircraft leftPlane;
+	Aircraft rightPlane;
 	Entity background;
 };
 
