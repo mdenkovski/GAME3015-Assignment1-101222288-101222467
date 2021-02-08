@@ -186,7 +186,7 @@ private:
 
 	POINT mLastMousePos;
 
-	float scaleFactor = 10.0f;
+	//float scaleFactor = 1.0f;
 
 	GameObject plane;
 	GameObject leftPlane;
@@ -244,7 +244,7 @@ bool Game::Initialize()
 	mCbvSrvDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	//mCamera.SetPosition(0.8f * scaleFactor, 0.3 * scaleFactor, 1.0f * scaleFactor);
-	mCamera.SetPosition(0 * scaleFactor, 5 * scaleFactor, 0 * scaleFactor);
+	mCamera.SetPosition(0, 5, 0 );
 	mCamera.Pitch(3.14/2);
 
 	mWaves = std::make_unique<Waves>(40, 80, 0.25, 0.03f, 1.0, 0.2f);
@@ -453,7 +453,7 @@ void Game::OnKeyboardInput(const GameTimer& gt)
 
 	mCamera.GetLook();
 	float tmin = 0;
-	float buffer = 0.5 * scaleFactor;
+	float buffer = 0.5 ;
 	XMFLOAT3  oppositef3(-1, -1, -1);
 	XMVECTOR opposite = XMLoadFloat3(&oppositef3);
 
@@ -703,11 +703,11 @@ void Game::UpdateMainPassCB(const GameTimer& gt)
 	mMainPassCB.Lights[1].Strength = { 0.3f, 0.3f, 0.3f };
 	mMainPassCB.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
 	mMainPassCB.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
-	mMainPassCB.Lights[3].Position = { -5.0f  * scaleFactor, 3.0f * scaleFactor, 0.0f * scaleFactor };
+	mMainPassCB.Lights[3].Position = { -5.0f  , 3.0f , 0.0f  };
 	mMainPassCB.Lights[3].Strength = { 1.0f, 0.0f, 0.0f };
 	mMainPassCB.Lights[3].Direction = { 0.0, -1.0, 0.0f };
-	mMainPassCB.Lights[3].FalloffStart = { 1.0f  * scaleFactor };
-	mMainPassCB.Lights[3].FalloffEnd = { 5.0f  * scaleFactor };
+	mMainPassCB.Lights[3].FalloffStart = { 1.0f   };
+	mMainPassCB.Lights[3].FalloffEnd = { 5.0f  };
 	mMainPassCB.Lights[3].SpotPower = { 1.0f };
 
 
@@ -718,7 +718,7 @@ void Game::UpdateMainPassCB(const GameTimer& gt)
 void Game::MoveGameObjects(const GameTimer& gt)
 {
 	//check if plane is at edge
-	if (XMVectorGetX(plane.position) > 18 || XMVectorGetX(plane.position) < -18 )
+	if (XMVectorGetX(plane.position) > 1.8 || XMVectorGetX(plane.position) < -1.8 )
 	{
 		plane.velocity *= -1;
 		leftPlane.velocity *= -1;
@@ -730,7 +730,7 @@ void Game::MoveGameObjects(const GameTimer& gt)
 	plane.position = XMVectorAdd(plane.position, displacement);
 	plane.renderItem = std::move(mAllRitems[plane.renderIndex]);
 	plane.renderItem->NumFramesDirty = 1;
-	XMStoreFloat4x4(&plane.renderItem->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor) * XMMatrixTranslationFromVector(plane.position));
+	XMStoreFloat4x4(&plane.renderItem->World, XMMatrixScaling(0.01f , 0.01f , 0.01f ) * XMMatrixTranslationFromVector(plane.position));
 	mAllRitems[plane.renderIndex] = std::move(plane.renderItem);
 
 	//move the supporting planes
@@ -738,14 +738,14 @@ void Game::MoveGameObjects(const GameTimer& gt)
 	leftPlane.position = XMVectorAdd(leftPlane.position, displacement);
 	leftPlane.renderItem = std::move(mAllRitems[leftPlane.renderIndex]);
 	leftPlane.renderItem->NumFramesDirty = 1;
-	XMStoreFloat4x4(&leftPlane.renderItem->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor) * XMMatrixTranslationFromVector(leftPlane.position));
+	XMStoreFloat4x4(&leftPlane.renderItem->World, XMMatrixScaling(0.01f, 0.01f , 0.01f ) * XMMatrixTranslationFromVector(leftPlane.position));
 	mAllRitems[leftPlane.renderIndex] = std::move(leftPlane.renderItem);
 
 	displacement = rightPlane.velocity * gt.DeltaTime();
 	rightPlane.position = XMVectorAdd(rightPlane.position, displacement);
 	rightPlane.renderItem = std::move(mAllRitems[rightPlane.renderIndex]);
 	rightPlane.renderItem->NumFramesDirty = 1;
-	XMStoreFloat4x4(&rightPlane.renderItem->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor) * XMMatrixTranslationFromVector(rightPlane.position));
+	XMStoreFloat4x4(&rightPlane.renderItem->World, XMMatrixScaling(0.01f , 0.01f, 0.01f) * XMMatrixTranslationFromVector(rightPlane.position));
 	mAllRitems[rightPlane.renderIndex] = std::move(rightPlane.renderItem);
 
 	//move the background down
@@ -753,7 +753,7 @@ void Game::MoveGameObjects(const GameTimer& gt)
 	background.position = XMVectorAdd(background.position, displacement);
 	background.renderItem = std::move(mAllRitems[background.renderIndex]);
 	background.renderItem->NumFramesDirty = 1;
-	XMStoreFloat4x4(&background.renderItem->World, XMMatrixScaling(1.0f * scaleFactor, 1.0f * scaleFactor, 1.0f * scaleFactor) * XMMatrixTranslationFromVector(background.position));
+	XMStoreFloat4x4(&background.renderItem->World, XMMatrixScaling(1.0f , 1.0f , 1.0f ) * XMMatrixTranslationFromVector(background.position));
 	mAllRitems[background.renderIndex] = std::move(background.renderItem);
 
 	//auto currObjectCB = mCurrFrameResource->ObjectCB.get();
@@ -1345,11 +1345,11 @@ void Game::BuildRenderItems()
 
 	// land for the city
 	background.renderItem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&background.renderItem->World, XMMatrixScaling(1.0f * scaleFactor, 1.0f * scaleFactor, 1.0f * scaleFactor) * XMMatrixTranslation(0.0f * scaleFactor, 0 * scaleFactor, 0 * scaleFactor));/// can choose your scaling here
+	XMStoreFloat4x4(&background.renderItem->World, XMMatrixScaling(1.0f , 1.0f , 1.0f ) * XMMatrixTranslation(0.0f , 0 , 0 ));/// can choose your scaling here
 	XMStoreFloat4x4(&background.renderItem->TexTransform, XMMatrixScaling(10.0f, 10.0f, 10.0f));
 	XMVECTOR spawnpointBackground = { 0, 0, 0 };
 	background.position = spawnpointBackground;
-	background.velocity = { 0.0f, 0.0f, -5.0f };
+	background.velocity = { 0.0f, 0.0f, -0.5f };
 	background.renderItem->ObjCBIndex = objCBIndex++;
 	background.renderItem->Mat = mMaterials["BackgroundTex"].get();
 	background.renderItem->Geo = mGeometries["groundGeo"].get();
@@ -1380,10 +1380,10 @@ void Game::BuildRenderItems()
 
 
 	plane.renderItem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&plane.renderItem->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor) * XMMatrixTranslation(-1.0f * scaleFactor, 1 * scaleFactor, -1 * scaleFactor));/// can choose your scaling here
-	XMVECTOR spawnpoint = { -1.0f * scaleFactor, 1 * scaleFactor, -1 * scaleFactor };
+	XMStoreFloat4x4(&plane.renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f ) * XMMatrixTranslation(-1.0f , 1 , -1 ));/// can choose your scaling here
+	XMVECTOR spawnpoint = { -1.0f , 1, -1  };
 	plane.position = spawnpoint;
-	plane.velocity = {5.0f, 0.0f, 0.0f};
+	plane.velocity = {0.5f, 0.0f, 0.0f};
 	//XMStorevector(&plane.position, spawnpoint);
 	XMStoreFloat4x4(&plane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	plane.renderItem->ObjCBIndex = objCBIndex++;
@@ -1418,10 +1418,10 @@ void Game::BuildRenderItems()
 	mAllRitems.push_back(std::move(raptor));*/
 
 	leftPlane.renderItem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&leftPlane.renderItem->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor) * XMMatrixTranslation(-1.25f * scaleFactor, 1 * scaleFactor, -1.25 * scaleFactor));/// can choose your scaling here
-	spawnpoint = { -1.25f * scaleFactor, 1.0f * scaleFactor, -1.25f * scaleFactor };
+	XMStoreFloat4x4(&leftPlane.renderItem->World, XMMatrixScaling(0.01f , 0.01f, 0.01f ) * XMMatrixTranslation(-1.25f , 1 , -1.25 ));/// can choose your scaling here
+	spawnpoint = { -1.25f , 1.0f , -1.25f };
 	leftPlane.position = spawnpoint;
-	leftPlane.velocity = { 5.0f, 0.0f, 0.0f };
+	leftPlane.velocity = { 0.5f, 0.0f, 0.0f };
 	XMStoreFloat4x4(&leftPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	leftPlane.renderItem->ObjCBIndex = objCBIndex++;
 	leftPlane.renderItem->Mat = mMaterials["EagleTex"].get();
@@ -1438,10 +1438,10 @@ void Game::BuildRenderItems()
 
 
 	rightPlane.renderItem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&rightPlane.renderItem->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor)* XMMatrixTranslation(-0.75f * scaleFactor, 1 * scaleFactor, -1.25 * scaleFactor));/// can choose your scaling here
-	spawnpoint = { -0.75f * scaleFactor, 1.0f * scaleFactor, -1.25f * scaleFactor };
+	XMStoreFloat4x4(&rightPlane.renderItem->World, XMMatrixScaling(0.01f , 0.01f , 0.01f)* XMMatrixTranslation(-0.75f , 1 , -1.25 ));/// can choose your scaling here
+	spawnpoint = { -0.75f , 1.0f , -1.25f  };
 	rightPlane.position = spawnpoint;
-	rightPlane.velocity = { 5.0f, 0.0f, 0.0f };
+	rightPlane.velocity = { 0.5f, 0.0f, 0.0f };
 	XMStoreFloat4x4(&rightPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	rightPlane.renderItem->ObjCBIndex = objCBIndex++;
 	rightPlane.renderItem->Mat = mMaterials["EagleTex"].get();
