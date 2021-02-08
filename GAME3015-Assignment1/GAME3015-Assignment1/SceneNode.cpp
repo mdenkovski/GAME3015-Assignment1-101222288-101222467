@@ -26,26 +26,26 @@ SceneNode::Ptr SceneNode::detachChild(const SceneNode& node)
 	return result;
 }
 
-void SceneNode::update(GameTimer dt)
+void SceneNode::update(GameTimer dt , std::vector<std::unique_ptr<RenderItem>>& renderList)
 {
-	updateCurrent(dt);
-	updateChildren(dt);
+	updateCurrent(dt, renderList);
+	updateChildren(dt, renderList);
 }
 
-void SceneNode::updateCurrent(GameTimer  dt)
+void SceneNode::updateCurrent(GameTimer  dt, std::vector<std::unique_ptr<RenderItem>>& renderList)
 {
 	// Do nothing by default
 }
 
-void SceneNode::updateChildren(GameTimer dt)
+void SceneNode::updateChildren(GameTimer dt, std::vector<std::unique_ptr<RenderItem>>& renderList)
 {
 	for (Ptr& child : mChildren)
 	{
-		child->update(dt);
+		child->update(dt, renderList);
 	}
 }
 
-void SceneNode::draw(ID3D12GraphicsCommandList* cmdList, RenderItem* ritems) const
+void SceneNode::draw(ID3D12GraphicsCommandList* cmdList, RenderItem& ritems) 
 {
 	//// Apply transform of current node
 	//ritems.transform *= getTransform();
@@ -55,12 +55,12 @@ void SceneNode::draw(ID3D12GraphicsCommandList* cmdList, RenderItem* ritems) con
 	//drawChildren(cmdList, ritems);
 }
 
-void SceneNode::drawCurrent(ID3D12GraphicsCommandList* cmdList, RenderItem* ritems) const
+void SceneNode::drawCurrent(ID3D12GraphicsCommandList* cmdList, RenderItem& ritems) 
 {
 	// Do nothing by default
 }
 
-void SceneNode::drawChildren(ID3D12GraphicsCommandList* cmdList, RenderItem* ritems) const
+void SceneNode::drawChildren(ID3D12GraphicsCommandList* cmdList, RenderItem& ritems) 
 {
 	/*for (const Ptr& child : mChildren)
 		child->draw(cmdList, ritems);*/

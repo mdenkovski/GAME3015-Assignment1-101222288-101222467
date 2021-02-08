@@ -15,14 +15,15 @@ public:
 public:
 	Aircraft();
 
+	void Update();
+
 
 private:
-	virtual void		drawCurrent(GameTimer dt, RenderItem* renderItem) const;
+	virtual void		drawCurrent(GameTimer dt) ;
 
 
 private:
 	Type				mType;
 
-	RenderItem* mSprite;
 };
 
