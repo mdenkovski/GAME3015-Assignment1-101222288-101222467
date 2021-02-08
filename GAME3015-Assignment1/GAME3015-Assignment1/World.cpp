@@ -2,26 +2,29 @@
 
 World::World()
 {
+	mPlane = new Aircraft(Aircraft::Raptor);
+	leftPlane = new Aircraft(Aircraft::Eagle);
+	rightPlane = new Aircraft(Aircraft::Eagle);
 }
 
 
 void World::update(GameTimer dt, std::vector<std::unique_ptr<RenderItem>>& renderList)
 {
-	if (XMVectorGetX(mPlane.mPosition) > 1.8 || XMVectorGetX(mPlane.mPosition) < -1.8)
+	if (XMVectorGetX(mPlane->mPosition) > 1.8 || XMVectorGetX(mPlane->mPosition) < -1.8)
 	{
-		mPlane.mVelocity *= -1;
-		leftPlane.mVelocity *= -1;
-		rightPlane.mVelocity *= -1;
+		mPlane->mVelocity *= -1;
+		leftPlane->mVelocity *= -1;
+		rightPlane->mVelocity *= -1;
 	}
 
-	mPlane.update(dt, renderList);
-	//mPlane.Update();
+	mPlane->update(dt, renderList);
+	//mPlane->Update();
 
-	leftPlane.update(dt, renderList);
-	//leftPlane.Update();
+	leftPlane->update(dt, renderList);
+	//leftPlane->Update();
 
-	rightPlane.update(dt, renderList);
-	//rightPlane.Update();
+	rightPlane->update(dt, renderList);
+	//rightPlane->Update();
 
 
 	background.update(dt, renderList);
@@ -100,66 +103,66 @@ void World::buildScene(std::vector<std::unique_ptr<RenderItem>>& renderList, std
 	background.renderIndex = renderList.size() - 1;
 	
 	//make the main plane
-	mPlane.renderItem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&mPlane.renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(-1.0f, 1, -1));/// can choose your scaling here
+	mPlane->renderItem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&mPlane->renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(-1.0f, 1, -1));/// can choose your scaling here
 	XMVECTOR spawnpoint = { -1.0f , 1 , -1 };
-	mPlane.mPosition = spawnpoint;
-	mPlane.mVelocity = { 0.5f, 0.0f, 0.0f };
-	mPlane.Scale = { 0.01f, 0.01f, 0.01f };
-	//XMStorevector(&mPlane.position, spawnpoint);
-	XMStoreFloat4x4(&mPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-	mPlane.renderItem->ObjCBIndex = objCBIndex++;
-	mPlane.renderItem->Mat = Materials["RaptorTex"].get();
-	mPlane.renderItem->Geo = Geometries["groundGeo"].get();
-	mPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	mPlane.renderItem->IndexCount = mPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
-	mPlane.renderItem->StartIndexLocation = mPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
-	mPlane.renderItem->BaseVertexLocation = mPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
+	mPlane->mPosition = spawnpoint;
+	mPlane->mVelocity = { 0.5f, 0.0f, 0.0f };
+	mPlane->Scale = { 0.01f, 0.01f, 0.01f };
+	//XMStorevector(&mPlane->position, spawnpoint);
+	XMStoreFloat4x4(&mPlane->renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	mPlane->renderItem->ObjCBIndex = objCBIndex++;
+	mPlane->renderItem->Mat = Materials["RaptorTex"].get();
+	mPlane->renderItem->Geo = Geometries["groundGeo"].get();
+	mPlane->renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	mPlane->renderItem->IndexCount = mPlane->renderItem->Geo->DrawArgs["ground"].IndexCount;
+	mPlane->renderItem->StartIndexLocation = mPlane->renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	mPlane->renderItem->BaseVertexLocation = mPlane->renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
 
-	RitemLayer[(int)RenderLayer::AlphaTested].push_back(mPlane.renderItem.get());
-	renderList.push_back(std::move(mPlane.renderItem));
-	mPlane.renderIndex = renderList.size() - 1;
+	RitemLayer[(int)RenderLayer::AlphaTested].push_back(mPlane->renderItem.get());
+	renderList.push_back(std::move(mPlane->renderItem));
+	mPlane->renderIndex = renderList.size() - 1;
 
 	//make the left plane
-	leftPlane.renderItem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&leftPlane.renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(-1.25f, 1, -1.25));/// can choose your scaling here
+	leftPlane->renderItem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&leftPlane->renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(-1.25f, 1, -1.25));/// can choose your scaling here
 	spawnpoint = { -1.25f , 1.0f , -1.25f };
-	leftPlane.mPosition = spawnpoint;
-	leftPlane.mVelocity = { 0.5f, 0.0f, 0.0f };
-	leftPlane.Scale = { 0.01f, 0.01f, 0.01f };
-	XMStoreFloat4x4(&leftPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-	leftPlane.renderItem->ObjCBIndex = objCBIndex++;
-	leftPlane.renderItem->Mat = Materials["EagleTex"].get();
-	leftPlane.renderItem->Geo = Geometries["groundGeo"].get();
-	leftPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	leftPlane.renderItem->IndexCount = leftPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
-	leftPlane.renderItem->StartIndexLocation = leftPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
-	leftPlane.renderItem->BaseVertexLocation = leftPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
+	leftPlane->mPosition = spawnpoint;
+	leftPlane->mVelocity = { 0.5f, 0.0f, 0.0f };
+	leftPlane->Scale = { 0.01f, 0.01f, 0.01f };
+	XMStoreFloat4x4(&leftPlane->renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	leftPlane->renderItem->ObjCBIndex = objCBIndex++;
+	leftPlane->renderItem->Mat = Materials["EagleTex"].get();
+	leftPlane->renderItem->Geo = Geometries["groundGeo"].get();
+	leftPlane->renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	leftPlane->renderItem->IndexCount = leftPlane->renderItem->Geo->DrawArgs["ground"].IndexCount;
+	leftPlane->renderItem->StartIndexLocation = leftPlane->renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	leftPlane->renderItem->BaseVertexLocation = leftPlane->renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
 
-	RitemLayer[(int)RenderLayer::AlphaTested].push_back(leftPlane.renderItem.get());
-	renderList.push_back(std::move(leftPlane.renderItem));
-	leftPlane.renderIndex = renderList.size() - 1;
+	RitemLayer[(int)RenderLayer::AlphaTested].push_back(leftPlane->renderItem.get());
+	renderList.push_back(std::move(leftPlane->renderItem));
+	leftPlane->renderIndex = renderList.size() - 1;
 
 
 	//make the right plane
-	rightPlane.renderItem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&rightPlane.renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(-0.75f, 1, -1.25));/// can choose your scaling here
+	rightPlane->renderItem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&rightPlane->renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(-0.75f, 1, -1.25));/// can choose your scaling here
 	spawnpoint = { -0.75f , 1.0f , -1.25f };
-	rightPlane.mPosition = spawnpoint;
-	rightPlane.mVelocity = { 0.5f, 0.0f, 0.0f };
-	rightPlane.Scale = { 0.01f, 0.01f, 0.01f };
-	XMStoreFloat4x4(&rightPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-	rightPlane.renderItem->ObjCBIndex = objCBIndex++;
-	rightPlane.renderItem->Mat = Materials["EagleTex"].get();
-	rightPlane.renderItem->Geo = Geometries["groundGeo"].get();
-	rightPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	rightPlane.renderItem->IndexCount = rightPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
-	rightPlane.renderItem->StartIndexLocation = rightPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
-	rightPlane.renderItem->BaseVertexLocation = rightPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
+	rightPlane->mPosition = spawnpoint;
+	rightPlane->mVelocity = { 0.5f, 0.0f, 0.0f };
+	rightPlane->Scale = { 0.01f, 0.01f, 0.01f };
+	XMStoreFloat4x4(&rightPlane->renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	rightPlane->renderItem->ObjCBIndex = objCBIndex++;
+	rightPlane->renderItem->Mat = Materials["EagleTex"].get();
+	rightPlane->renderItem->Geo = Geometries["groundGeo"].get();
+	rightPlane->renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	rightPlane->renderItem->IndexCount = rightPlane->renderItem->Geo->DrawArgs["ground"].IndexCount;
+	rightPlane->renderItem->StartIndexLocation = rightPlane->renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	rightPlane->renderItem->BaseVertexLocation = rightPlane->renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
 
-	RitemLayer[(int)RenderLayer::AlphaTested].push_back(rightPlane.renderItem.get());
-	renderList.push_back(std::move(rightPlane.renderItem));
-	rightPlane.renderIndex = renderList.size() - 1;
+	RitemLayer[(int)RenderLayer::AlphaTested].push_back(rightPlane->renderItem.get());
+	renderList.push_back(std::move(rightPlane->renderItem));
+	rightPlane->renderIndex = renderList.size() - 1;
 
 
 

@@ -60,9 +60,9 @@ private:
 	XMFLOAT4					mWorldBounds;
 	XMVECTOR						mSpawnPosition;
 	float								mScrollSpeed;
-	Aircraft mPlane;
-	Aircraft leftPlane;
-	Aircraft rightPlane;
+	Aircraft* mPlane;
+	Aircraft* leftPlane;
+	Aircraft* rightPlane;
 	Entity background;
 };
 
