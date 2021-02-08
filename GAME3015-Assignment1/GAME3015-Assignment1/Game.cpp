@@ -59,14 +59,14 @@ const int gNumFrameResources = 3;
 //	int BaseVertexLocation = 0;
 //};
 
-enum class RenderLayer : int
-{
-	Opaque = 0,
-	Transparent,
-	AlphaTested,
-	AlphaTestedTreeSprites,
-	Count
-};
+//enum class RenderLayer : int
+//{
+//	Opaque = 0,
+//	Transparent,
+//	AlphaTested,
+//	AlphaTestedTreeSprites,
+//	Count
+//};
 
 struct GameObject
 {
@@ -187,15 +187,17 @@ private:
 
 	POINT mLastMousePos;
 
+	//float scaleFactor = 1.0f;
 
-	Aircraft mPlane;
+	/*Aircraft mPlane;
 
 	GameObject plane;
 	GameObject leftPlane;
 	GameObject rightPlane;
 	GameObject background;
 
-	SceneNode mSceneGraph;
+	SceneNode mSceneGraph;*/
+	World GameWorld;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -456,7 +458,6 @@ void Game::OnKeyboardInput(const GameTimer& gt)
 	mCamera.GetLook();
 	float tmin = 0;
 	float buffer = 0.5 ;
-
 	XMFLOAT3  oppositef3(-1, -1, -1);
 	XMVECTOR opposite = XMLoadFloat3(&oppositef3);
 
@@ -583,7 +584,7 @@ void Game::OnKeyboardInput(const GameTimer& gt)
 		
 
 	mCamera.UpdateViewMatrix();
-	//mCamera.SetPositionY(0.3  );
+	//mCamera.SetPositionY(0.3 * scaleFactor);
 }
 //
 //void Game::UpdateCamera(const GameTimer& gt)
@@ -706,13 +707,11 @@ void Game::UpdateMainPassCB(const GameTimer& gt)
 	mMainPassCB.Lights[1].Strength = { 0.3f, 0.3f, 0.3f };
 	mMainPassCB.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
 	mMainPassCB.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
-
 	mMainPassCB.Lights[3].Position = { -5.0f  , 3.0f , 0.0f  };
 	mMainPassCB.Lights[3].Strength = { 1.0f, 0.0f, 0.0f };
 	mMainPassCB.Lights[3].Direction = { 0.0, -1.0, 0.0f };
 	mMainPassCB.Lights[3].FalloffStart = { 1.0f   };
 	mMainPassCB.Lights[3].FalloffEnd = { 5.0f  };
-
 	mMainPassCB.Lights[3].SpotPower = { 1.0f };
 
 
@@ -722,89 +721,50 @@ void Game::UpdateMainPassCB(const GameTimer& gt)
 
 void Game::MoveGameObjects(const GameTimer& gt)
 {
-	//check if plane is at edge
-	if (XMVectorGetX(plane.position) > 1.8 || XMVectorGetX(plane.position) < -1.8 )
-	{
-		plane.velocity *= -1;
-		leftPlane.velocity *= -1;
-		rightPlane.velocity *= -1;
-	}
-	
-	if (XMVectorGetZ(background.position) < -12)
-	{
-		background.position = XMVECTOR{ 0, 0, 0 };
-	}
+	GameWorld.update(gt, mAllRitems);
 
-
-	mPlane.update(gt, mAllRitems);
-	mPlane.Update();
-
-	//move the main plane
-	XMVECTOR displacement = plane.velocity * gt.DeltaTime();
-	plane.position = XMVectorAdd(plane.position, displacement);
-	plane.renderItem = std::move(mAllRitems[plane.renderIndex]);
-	plane.renderItem->NumFramesDirty = 1;
-
-	XMStoreFloat4x4(&plane.renderItem->World, XMMatrixScaling(0.01f , 0.01f , 0.01f ) * XMMatrixTranslationFromVector(plane.position));
-
-	mAllRitems[plane.renderIndex] = std::move(plane.renderItem);
-
-	//move the supporting planes
-	displacement = leftPlane.velocity * gt.DeltaTime(); 
-	leftPlane.position = XMVectorAdd(leftPlane.position, displacement);
-	leftPlane.renderItem = std::move(mAllRitems[leftPlane.renderIndex]);
-	leftPlane.renderItem->NumFramesDirty = 1;
-
-	XMStoreFloat4x4(&leftPlane.renderItem->World, XMMatrixScaling(0.01f, 0.01f , 0.01f ) * XMMatrixTranslationFromVector(leftPlane.position));
-
-	mAllRitems[leftPlane.renderIndex] = std::move(leftPlane.renderItem);
-
-	displacement = rightPlane.velocity * gt.DeltaTime();
-	rightPlane.position = XMVectorAdd(rightPlane.position, displacement);
-	rightPlane.renderItem = std::move(mAllRitems[rightPlane.renderIndex]);
-	rightPlane.renderItem->NumFramesDirty = 1;
-
-	XMStoreFloat4x4(&rightPlane.renderItem->World, XMMatrixScaling(0.01f , 0.01f, 0.01f) * XMMatrixTranslationFromVector(rightPlane.position));
-
-	mAllRitems[rightPlane.renderIndex] = std::move(rightPlane.renderItem);
-
-	//move the background down
-	displacement = background.velocity * gt.DeltaTime();
-	background.position = XMVectorAdd(background.position, displacement);
-	background.renderItem = std::move(mAllRitems[background.renderIndex]);
-	background.renderItem->NumFramesDirty = 1;
-
-	XMStoreFloat4x4(&background.renderItem->World, XMMatrixScaling(1.0f , 1.0f , 1.0f ) * XMMatrixTranslationFromVector(background.position));
-
-	mAllRitems[background.renderIndex] = std::move(background.renderItem);
-	
-	float test1 = XMVectorGetX(background.position);
-	float test2 = XMVectorGetY(background.position); 
-	float test3 = XMVectorGetZ(background.position);
-	float test4 = XMVectorGetZ(background.position);
-	//auto currObjectCB = mCurrFrameResource->ObjectCB.get();
-	//for (auto& e : mAllRitems)
+	////check if plane is at edge
+	//if (XMVectorGetX(plane.position) > 1.8 || XMVectorGetX(plane.position) < -1.8 )
 	//{
-	//	// Only update the cbuffer data if the constants have changed.  
-	//	// This needs to be tracked per frame resource.
-	//	if (e->NumFramesDirty > 0)
-	//	{
-	//		XMMATRIX world = XMLoadFloat4x4(&e->World);
-	//		XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
-
-	//		ObjectConstants objConstants;
-	//		XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
-	//		XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
-
-	//		currObjectCB->CopyData(e->ObjCBIndex, objConstants);
-
-	//		// Next FrameResource need to be updated too.
-	//		e->NumFramesDirty--;
-	//	}
+	//	plane.velocity *= -1;
+	//	leftPlane.velocity *= -1;
+	//	rightPlane.velocity *= -1;
 	//}
 
-	/*mAllRitems.
-	mAllRitems.push_back(std::move(plane.renderItem));*/
+	
+
+	////move the main plane
+	//XMVECTOR displacement = plane.velocity * gt.DeltaTime();
+	//plane.position = XMVectorAdd(plane.position, displacement);
+	//plane.renderItem = std::move(mAllRitems[plane.renderIndex]);
+	//plane.renderItem->NumFramesDirty = 1;
+	//XMStoreFloat4x4(&plane.renderItem->World, XMMatrixScaling(0.01f , 0.01f , 0.01f ) * XMMatrixTranslationFromVector(plane.position));
+	//mAllRitems[plane.renderIndex] = std::move(plane.renderItem);
+
+	////move the supporting planes
+	//displacement = leftPlane.velocity * gt.DeltaTime(); 
+	//leftPlane.position = XMVectorAdd(leftPlane.position, displacement);
+	//leftPlane.renderItem = std::move(mAllRitems[leftPlane.renderIndex]);
+	//leftPlane.renderItem->NumFramesDirty = 1;
+	//XMStoreFloat4x4(&leftPlane.renderItem->World, XMMatrixScaling(0.01f, 0.01f , 0.01f ) * XMMatrixTranslationFromVector(leftPlane.position));
+	//mAllRitems[leftPlane.renderIndex] = std::move(leftPlane.renderItem);
+
+	//displacement = rightPlane.velocity * gt.DeltaTime();
+	//rightPlane.position = XMVectorAdd(rightPlane.position, displacement);
+	//rightPlane.renderItem = std::move(mAllRitems[rightPlane.renderIndex]);
+	//rightPlane.renderItem->NumFramesDirty = 1;
+	//XMStoreFloat4x4(&rightPlane.renderItem->World, XMMatrixScaling(0.01f , 0.01f, 0.01f) * XMMatrixTranslationFromVector(rightPlane.position));
+	//mAllRitems[rightPlane.renderIndex] = std::move(rightPlane.renderItem);
+
+	////move the background down
+	//displacement = background.velocity * gt.DeltaTime();
+	//background.position = XMVectorAdd(background.position, displacement);
+	//background.renderItem = std::move(mAllRitems[background.renderIndex]);
+	//background.renderItem->NumFramesDirty = 1;
+	//XMStoreFloat4x4(&background.renderItem->World, XMMatrixScaling(1.0f , 1.0f , 1.0f ) * XMMatrixTranslationFromVector(background.position));
+	//mAllRitems[background.renderIndex] = std::move(background.renderItem);
+
+	
 }
 
 void Game::LoadTextures()
@@ -1352,174 +1312,117 @@ void Game::BuildMaterials()
 
 void Game::BuildRenderItems()
 {
-	UINT objCBIndex = 0;
+	GameWorld.buildScene(mAllRitems, mMaterials, mTextures, mGeometries, mRitemLayer);
 
-	////the ground under the ocean
-	//auto gridRitem = std::make_unique<RenderItem>();
-	//XMStoreFloat4x4(&gridRitem->World, XMMatrixScaling(1.0f  , 0.02f  , 1.0f  ) * XMMatrixTranslation(0.0f  , -0.2f  , 0.0f  ));
-	//XMStoreFloat4x4(&gridRitem->TexTransform, XMMatrixScaling(5.0f, 5.0f, 1.0f));
-	//gridRitem->ObjCBIndex = objCBIndex++;
-	//gridRitem->Mat = mMaterials["grass"].get();
-	//gridRitem->Geo = mGeometries["landGeo"].get();
-	//gridRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	//gridRitem->IndexCount = gridRitem->Geo->DrawArgs["grid"].IndexCount;
-	//gridRitem->StartIndexLocation = gridRitem->Geo->DrawArgs["grid"].StartIndexLocation;
-	//gridRitem->BaseVertexLocation = gridRitem->Geo->DrawArgs["grid"].BaseVertexLocation;
-	//mRitemLayer[(int)RenderLayer::Opaque].push_back(gridRitem.get());
-	//mAllRitems.push_back(std::move(gridRitem));
+	//UINT objCBIndex = 0;
 
-
-	// land for the city
-	background.renderItem = std::make_unique<RenderItem>();
-
-	XMStoreFloat4x4(&background.renderItem->World, XMMatrixScaling(1.0f , 1.0f , 1.0f ) * XMMatrixTranslation(0.0f , 0 , 0 ));/// can choose your scaling here
-	XMStoreFloat4x4(&background.renderItem->TexTransform, XMMatrixScaling(10.0f, 10.0f, 10.0f));
-	XMVECTOR spawnpointBackground = { 0, 0, 0 };
-	background.position = spawnpointBackground;
-	background.velocity = { 0.0f, 0.0f, -0.5f };
-	background.renderItem->ObjCBIndex = objCBIndex++;
-	background.renderItem->Mat = mMaterials["BackgroundTex"].get();
-	background.renderItem->Geo = mGeometries["groundGeo"].get();
-	background.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	background.renderItem->IndexCount = background.renderItem->Geo->DrawArgs["ground"].IndexCount;
-	background.renderItem->StartIndexLocation = background.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
-	background.renderItem->BaseVertexLocation = background.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
-
-	mRitemLayer[(int)RenderLayer::Opaque].push_back(background.renderItem.get());
-	mAllRitems.push_back(std::move(background.renderItem));
-	background.renderIndex = mAllRitems.size() - 1;
+	//
 
 
 	//// land for the city
-	//auto groundRitem = std::make_unique<RenderItem>();
-	//XMStoreFloat4x4(&groundRitem->World, XMMatrixScaling(1.0f  , 1.0f  , 1.0f  ) * XMMatrixTranslation(0.0f  , 0  , 0  ));/// can choose your scaling here
-	//XMStoreFloat4x4(&groundRitem->TexTransform, XMMatrixScaling(10.0f, 10.0f, 10.0f));
-	//groundRitem->ObjCBIndex = objCBIndex++;
-	//groundRitem->Mat = mMaterials["BackgroundTex"].get();
-	//groundRitem->Geo = mGeometries["groundGeo"].get();
-	//groundRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	//groundRitem->IndexCount = groundRitem->Geo->DrawArgs["ground"].IndexCount;
-	//groundRitem->StartIndexLocation = groundRitem->Geo->DrawArgs["ground"].StartIndexLocation;
-	//groundRitem->BaseVertexLocation = groundRitem->Geo->DrawArgs["ground"].BaseVertexLocation;
+	//background.renderItem = std::make_unique<RenderItem>();
+	//XMStoreFloat4x4(&background.renderItem->World, XMMatrixScaling(1.0f , 1.0f , 1.0f ) * XMMatrixTranslation(0.0f , 0 , 0 ));/// can choose your scaling here
+	//XMStoreFloat4x4(&background.renderItem->TexTransform, XMMatrixScaling(10.0f, 10.0f, 10.0f));
+	//XMVECTOR spawnpointBackground = { 0, 0, 0 };
+	//background.position = spawnpointBackground;
+	//background.velocity = { 0.0f, 0.0f, -0.5f };
+	//background.renderItem->ObjCBIndex = objCBIndex++;
+	//background.renderItem->Mat = mMaterials["BackgroundTex"].get();
+	//background.renderItem->Geo = mGeometries["groundGeo"].get();
+	//background.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	//background.renderItem->IndexCount = background.renderItem->Geo->DrawArgs["ground"].IndexCount;
+	//background.renderItem->StartIndexLocation = background.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	//background.renderItem->BaseVertexLocation = background.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
 
-	//mRitemLayer[(int)RenderLayer::Opaque].push_back(groundRitem.get());
-	//mAllRitems.push_back(std::move(groundRitem));
-
-	
-	mPlane.renderItem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&mPlane.renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(0.0f, 1, 0.0f));/// can choose your scaling here
-	XMVECTOR spawnpoint = { 0.0f, 1.0f, 0.0f };
-	mPlane.mPosition = spawnpoint;
-	mPlane.mVelocity = { 0.5f, 0.0f, 0.0f };
-	//XMStorevector(&mPlane.position, spawnpoint);
-	XMStoreFloat4x4(&mPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-	mPlane.renderItem->ObjCBIndex = objCBIndex++;
-	mPlane.renderItem->Mat = mMaterials["RaptorTex"].get();
-	mPlane.renderItem->Geo = mGeometries["groundGeo"].get();
-	mPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	mPlane.renderItem->IndexCount = mPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
-	mPlane.renderItem->StartIndexLocation = mPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
-	mPlane.renderItem->BaseVertexLocation = mPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
-
-	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(mPlane.renderItem.get());
-	mAllRitems.push_back(std::move(mPlane.renderItem));
-	mPlane.renderIndex = mAllRitems.size() - 1;
-
-
-	plane.renderItem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&plane.renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f ) * XMMatrixTranslation(-1.0f , 1 , -1 ));/// can choose your scaling here
-	spawnpoint = { -1.0f , 1, -1  };
-	plane.position = spawnpoint;
-	plane.velocity = {0.5f, 0.0f, 0.0f};
-	//XMStorevector(&plane.position, spawnpoint);
-	XMStoreFloat4x4(&plane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-	plane.renderItem->ObjCBIndex = objCBIndex++;
-	plane.renderItem->Mat = mMaterials["RaptorTex"].get();
-	plane.renderItem->Geo = mGeometries["groundGeo"].get();
-	plane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	plane.renderItem->IndexCount = plane.renderItem->Geo->DrawArgs["ground"].IndexCount;
-	plane.renderItem->StartIndexLocation = plane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
-	plane.renderItem->BaseVertexLocation = plane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
-
-	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(plane.renderItem.get());
-	mAllRitems.push_back(std::move(plane.renderItem));
-	plane.renderIndex = mAllRitems.size() - 1;
+	//mRitemLayer[(int)RenderLayer::Opaque].push_back(background.renderItem.get());
+	//mAllRitems.push_back(std::move(background.renderItem));
+	//background.renderIndex = mAllRitems.size() - 1;
 
 
 
+	//
+	//mPlane.renderItem = std::make_unique<RenderItem>();
+	//XMStoreFloat4x4(&mPlane.renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(0.0f, 1, 0.0f));/// can choose your scaling here
+	//XMVECTOR spawnpoint = { 0.0f, 1.0f, 0.0f };
+	//mPlane.mPosition = spawnpoint;
+	//mPlane.mVelocity = { 0.5f, 0.0f, 0.0f };
+	////XMStorevector(&mPlane.position, spawnpoint);
+	//XMStoreFloat4x4(&mPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	//mPlane.renderItem->ObjCBIndex = objCBIndex++;
+	//mPlane.renderItem->Mat = mMaterials["RaptorTex"].get();
+	//mPlane.renderItem->Geo = mGeometries["groundGeo"].get();
+	//mPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	//mPlane.renderItem->IndexCount = mPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
+	//mPlane.renderItem->StartIndexLocation = mPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	//mPlane.renderItem->BaseVertexLocation = mPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
+
+	//mRitemLayer[(int)RenderLayer::AlphaTested].push_back(mPlane.renderItem.get());
+	//mAllRitems.push_back(std::move(mPlane.renderItem));
+	//mPlane.renderIndex = mAllRitems.size() - 1;
+
+
+	//plane.renderItem = std::make_unique<RenderItem>();
+	//XMStoreFloat4x4(&plane.renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f ) * XMMatrixTranslation(-1.0f , 1 , -1 ));/// can choose your scaling here
+	//spawnpoint = { -1.0f , 1, -1  };
+	//plane.position = spawnpoint;
+	//plane.velocity = {0.5f, 0.0f, 0.0f};
+	////XMStorevector(&plane.position, spawnpoint);
+	//XMStoreFloat4x4(&plane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	//plane.renderItem->ObjCBIndex = objCBIndex++;
+	//plane.renderItem->Mat = mMaterials["RaptorTex"].get();
+	//plane.renderItem->Geo = mGeometries["groundGeo"].get();
+	//plane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	//plane.renderItem->IndexCount = plane.renderItem->Geo->DrawArgs["ground"].IndexCount;
+	//plane.renderItem->StartIndexLocation = plane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	//plane.renderItem->BaseVertexLocation = plane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
+
+	//mRitemLayer[(int)RenderLayer::AlphaTested].push_back(plane.renderItem.get());
+	//mAllRitems.push_back(std::move(plane.renderItem));
+	//plane.renderIndex = mAllRitems.size() - 1;
 
 
 
-	/*auto raptor = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&raptor->World, XMMatrixScaling(0.01f  , 0.01f  , 0.01f  ) * XMMatrixTranslation(0.0f  , 1  , 0  ));/// can choose your scaling here
-	XMStoreFloat4x4(&raptor->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-	raptor->ObjCBIndex = objCBIndex++;
-	raptor->Mat = mMaterials["RaptorTex"].get();
-	raptor->Geo = mGeometries["groundGeo"].get();
-	raptor->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	raptor->IndexCount = raptor->Geo->DrawArgs["ground"].IndexCount;
-	raptor->StartIndexLocation = raptor->Geo->DrawArgs["ground"].StartIndexLocation;
-	raptor->BaseVertexLocation = raptor->Geo->DrawArgs["ground"].BaseVertexLocation;
 
-	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(raptor.get());
-	mAllRitems.push_back(std::move(raptor));*/
+	//leftPlane.renderItem = std::make_unique<RenderItem>();
+	//XMStoreFloat4x4(&leftPlane.renderItem->World, XMMatrixScaling(0.01f , 0.01f, 0.01f ) * XMMatrixTranslation(-1.25f , 1 , -1.25 ));/// can choose your scaling here
+	//spawnpoint = { -1.25f , 1.0f , -1.25f };
+	//leftPlane.position = spawnpoint;
+	//leftPlane.velocity = { 0.5f, 0.0f, 0.0f };
+	//XMStoreFloat4x4(&leftPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	//leftPlane.renderItem->ObjCBIndex = objCBIndex++;
+	//leftPlane.renderItem->Mat = mMaterials["EagleTex"].get();
+	//leftPlane.renderItem->Geo = mGeometries["groundGeo"].get();
+	//leftPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	//leftPlane.renderItem->IndexCount = leftPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
+	//leftPlane.renderItem->StartIndexLocation = leftPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	//leftPlane.renderItem->BaseVertexLocation = leftPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
 
-	leftPlane.renderItem = std::make_unique<RenderItem>();
-
-	XMStoreFloat4x4(&leftPlane.renderItem->World, XMMatrixScaling(0.01f , 0.01f, 0.01f ) * XMMatrixTranslation(-1.25f , 1 , -1.25 ));/// can choose your scaling here
-	spawnpoint = { -1.25f , 1.0f , -1.25f };
-	leftPlane.position = spawnpoint;
-	leftPlane.velocity = { 0.5f, 0.0f, 0.0f };
-	XMStoreFloat4x4(&leftPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-	leftPlane.renderItem->ObjCBIndex = objCBIndex++;
-	leftPlane.renderItem->Mat = mMaterials["EagleTex"].get();
-	leftPlane.renderItem->Geo = mGeometries["groundGeo"].get();
-	leftPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	leftPlane.renderItem->IndexCount = leftPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
-	leftPlane.renderItem->StartIndexLocation = leftPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
-	leftPlane.renderItem->BaseVertexLocation = leftPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
-
-	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(leftPlane.renderItem.get());
-	mAllRitems.push_back(std::move(leftPlane.renderItem));
-	leftPlane.renderIndex = mAllRitems.size() - 1;
+	//mRitemLayer[(int)RenderLayer::AlphaTested].push_back(leftPlane.renderItem.get());
+	//mAllRitems.push_back(std::move(leftPlane.renderItem));
+	//leftPlane.renderIndex = mAllRitems.size() - 1;
 
 
 
-	rightPlane.renderItem = std::make_unique<RenderItem>();
+	//rightPlane.renderItem = std::make_unique<RenderItem>();
+	//XMStoreFloat4x4(&rightPlane.renderItem->World, XMMatrixScaling(0.01f , 0.01f , 0.01f)* XMMatrixTranslation(-0.75f , 1 , -1.25 ));/// can choose your scaling here
+	//spawnpoint = { -0.75f , 1.0f , -1.25f  };
+	//rightPlane.position = spawnpoint;
+	//rightPlane.velocity = { 0.5f, 0.0f, 0.0f };
+	//XMStoreFloat4x4(&rightPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	//rightPlane.renderItem->ObjCBIndex = objCBIndex++;
+	//rightPlane.renderItem->Mat = mMaterials["EagleTex"].get();
+	//rightPlane.renderItem->Geo = mGeometries["groundGeo"].get();
+	//rightPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	//rightPlane.renderItem->IndexCount = rightPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
+	//rightPlane.renderItem->StartIndexLocation = rightPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	//rightPlane.renderItem->BaseVertexLocation = rightPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
 
-	XMStoreFloat4x4(&rightPlane.renderItem->World, XMMatrixScaling(0.01f , 0.01f , 0.01f)* XMMatrixTranslation(-0.75f , 1 , -1.25 ));/// can choose your scaling here
-	spawnpoint = { -0.75f , 1.0f , -1.25f  };
-
-	rightPlane.position = spawnpoint;
-	rightPlane.velocity = { 0.5f, 0.0f, 0.0f };
-	XMStoreFloat4x4(&rightPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-	rightPlane.renderItem->ObjCBIndex = objCBIndex++;
-	rightPlane.renderItem->Mat = mMaterials["EagleTex"].get();
-	rightPlane.renderItem->Geo = mGeometries["groundGeo"].get();
-	rightPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	rightPlane.renderItem->IndexCount = rightPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
-	rightPlane.renderItem->StartIndexLocation = rightPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
-	rightPlane.renderItem->BaseVertexLocation = rightPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
-
-	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(rightPlane.renderItem.get());
-	mAllRitems.push_back(std::move(rightPlane.renderItem));
-	rightPlane.renderIndex = mAllRitems.size() - 1;
+	//mRitemLayer[(int)RenderLayer::AlphaTested].push_back(rightPlane.renderItem.get());
+	//mAllRitems.push_back(std::move(rightPlane.renderItem));
+	//rightPlane.renderIndex = mAllRitems.size() - 1;
 
 
 
-	/*auto eagle = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&eagle->World, XMMatrixScaling(0.01f  , 0.01f  , 0.01f  ) * XMMatrixTranslation(1.0f  , 1  , 0  ));/// can choose your scaling here
-	XMStoreFloat4x4(&eagle->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-	eagle->ObjCBIndex = objCBIndex++;
-	eagle->Mat = mMaterials["EagleTex"].get();
-	eagle->Geo = mGeometries["groundGeo"].get();
-	eagle->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	eagle->IndexCount = eagle->Geo->DrawArgs["ground"].IndexCount;
-	eagle->StartIndexLocation = eagle->Geo->DrawArgs["ground"].StartIndexLocation;
-	eagle->BaseVertexLocation = eagle->Geo->DrawArgs["ground"].BaseVertexLocation;
-
-	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(eagle.get());
-	mAllRitems.push_back(std::move(eagle));*/
 }
 
 void Game::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
