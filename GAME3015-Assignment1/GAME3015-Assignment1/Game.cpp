@@ -702,6 +702,22 @@ void Game::LoadTextures()
 		backgroundTex->Resource, backgroundTex->UploadHeap));
 	mTextures[backgroundTex->Name] = std::move(backgroundTex);
 
+	auto EagleTex = std::make_unique<Texture>();
+	EagleTex->Name = "EagleTex";
+	EagleTex->Filename = L"../../Textures/Eagle.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), EagleTex->Filename.c_str(),
+		EagleTex->Resource, EagleTex->UploadHeap));
+	mTextures[EagleTex->Name] = std::move(EagleTex);
+
+	auto RaptorTex = std::make_unique<Texture>();
+	RaptorTex->Name = "RaptorTex";
+	RaptorTex->Filename = L"../../Textures/Raptor.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), RaptorTex->Filename.c_str(),
+		RaptorTex->Resource, RaptorTex->UploadHeap));
+	mTextures[RaptorTex->Name] = std::move(RaptorTex);
+
 	//auto waterTex = std::make_unique<Texture>();
 	//waterTex->Name = "waterTex";
 	//waterTex->Filename = L"../../Textures/water1.dds";
@@ -834,6 +850,9 @@ void Game::BuildDescriptorHeaps()
 	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
 	auto backgroundTex = mTextures["BackgroundTex"]->Resource;
+	auto EagleTex = mTextures["EagleTex"]->Resource;
+	auto RaptorTex = mTextures["RaptorTex"]->Resource;
+
 	//auto waterTex = mTextures["waterTex"]->Resource;
 	//auto roofTex = mTextures["roofTex"]->Resource;
 	//auto buildingTex = mTextures["buildingTex"]->Resource;
@@ -856,14 +875,14 @@ void Game::BuildDescriptorHeaps()
 	// next descriptor
 	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
-	//srvDesc.Format = waterTex->GetDesc().Format;
-	//md3dDevice->CreateShaderResourceView(waterTex.Get(), &srvDesc, hDescriptor);
+	srvDesc.Format = EagleTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(EagleTex.Get(), &srvDesc, hDescriptor);
 
-	//// next descriptor
-	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
-	//srvDesc.Format = roofTex->GetDesc().Format;
-	//md3dDevice->CreateShaderResourceView(roofTex.Get(), &srvDesc, hDescriptor);
+	srvDesc.Format = RaptorTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(RaptorTex.Get(), &srvDesc, hDescriptor);
 
 	//// next descriptor - building texture
 	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
@@ -1119,13 +1138,13 @@ void Game::BuildFrameResources()
 void Game::BuildMaterials()
 {
 	int matIndex = 0;
-	auto grass = std::make_unique<Material>();
-	grass->Name = "grass";
-	grass->MatCBIndex = matIndex;
-	grass->DiffuseSrvHeapIndex = matIndex++;
-	grass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	grass->Roughness = 0.125f;
+	auto BackgroundTex = std::make_unique<Material>();
+	BackgroundTex->Name = "BackgroundTex";
+	BackgroundTex->MatCBIndex = matIndex;
+	BackgroundTex->DiffuseSrvHeapIndex = matIndex++;
+	BackgroundTex->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	BackgroundTex->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	BackgroundTex->Roughness = 0.125f;
 
 	//// This is not a good water material definition, but we do not have all the rendering
 	//// tools we need (transparency, environment reflection), so we fake it for now.
@@ -1137,21 +1156,21 @@ void Game::BuildMaterials()
 	//water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	//water->Roughness = 0.0f;
 
-	//auto  roof = std::make_unique<Material>();
-	//roof->Name = "roof";
-	//roof->MatCBIndex = matIndex;
-	//roof->DiffuseSrvHeapIndex = matIndex++;
-	//roof->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	//roof->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	//roof->Roughness = 0.25f;
+	auto Eagle = std::make_unique<Material>();
+	Eagle->Name = "Eagle";
+	Eagle->MatCBIndex = matIndex;
+	Eagle->DiffuseSrvHeapIndex = matIndex++;
+	Eagle->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	Eagle->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	Eagle->Roughness = 0.25f;
 
-	//auto building = std::make_unique<Material>();
-	//building->Name = "building";
-	//building->MatCBIndex = matIndex;
-	//building->DiffuseSrvHeapIndex = matIndex++;
-	//building->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	//building->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	//building->Roughness = 0.125f;
+	auto Raptor = std::make_unique<Material>();
+	Raptor->Name = "Raptor";
+	Raptor->MatCBIndex = matIndex;
+	Raptor->DiffuseSrvHeapIndex = matIndex++;
+	Raptor->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	Raptor->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	Raptor->Roughness = 0.125f;
 
 	//auto concrete = std::make_unique<Material>();
 	//concrete->Name = "concrete";
@@ -1202,9 +1221,9 @@ void Game::BuildMaterials()
 	//treeSprites->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	//treeSprites->Roughness = 0.125f;
 
-	mMaterials["grass"] = std::move(grass);
-	//mMaterials["water"] = std::move(water);
-	//mMaterials["roof"] = std::move(roof);
+	mMaterials["BackgroundTex"] = std::move(BackgroundTex);
+	mMaterials["EagleTex"] = std::move(Eagle);
+	mMaterials["RaptorTex"] = std::move(Raptor);
 	//mMaterials["building"] = std::move(building);
 	//mMaterials["concrete"] = std::move(concrete);
 	//mMaterials["brick"] = std::move(brick);
@@ -1239,7 +1258,7 @@ void Game::BuildRenderItems()
 	XMStoreFloat4x4(&groundRitem->World, XMMatrixScaling(1.0f * scaleFactor, 1.0f * scaleFactor, 1.0f * scaleFactor) * XMMatrixTranslation(0.0f * scaleFactor, 0 * scaleFactor, 0 * scaleFactor));/// can choose your scaling here
 	XMStoreFloat4x4(&groundRitem->TexTransform, XMMatrixScaling(10.0f, 10.0f, 10.0f));
 	groundRitem->ObjCBIndex = objCBIndex++;
-	groundRitem->Mat = mMaterials["grass"].get();
+	groundRitem->Mat = mMaterials["BackgroundTex"].get();
 	groundRitem->Geo = mGeometries["groundGeo"].get();
 	groundRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	groundRitem->IndexCount = groundRitem->Geo->DrawArgs["ground"].IndexCount;
@@ -1249,6 +1268,33 @@ void Game::BuildRenderItems()
 	mRitemLayer[(int)RenderLayer::Opaque].push_back(groundRitem.get());
 	mAllRitems.push_back(std::move(groundRitem));
 
+	auto raptor = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&raptor->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor) * XMMatrixTranslation(0.0f * scaleFactor, 1 * scaleFactor, 0 * scaleFactor));/// can choose your scaling here
+	XMStoreFloat4x4(&raptor->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	raptor->ObjCBIndex = objCBIndex++;
+	raptor->Mat = mMaterials["RaptorTex"].get();
+	raptor->Geo = mGeometries["groundGeo"].get();
+	raptor->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	raptor->IndexCount = raptor->Geo->DrawArgs["ground"].IndexCount;
+	raptor->StartIndexLocation = raptor->Geo->DrawArgs["ground"].StartIndexLocation;
+	raptor->BaseVertexLocation = raptor->Geo->DrawArgs["ground"].BaseVertexLocation;
+
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(raptor.get());
+	mAllRitems.push_back(std::move(raptor));
+
+	auto eagle = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&eagle->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor) * XMMatrixTranslation(1.0f * scaleFactor, 1 * scaleFactor, 0 * scaleFactor));/// can choose your scaling here
+	XMStoreFloat4x4(&eagle->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	eagle->ObjCBIndex = objCBIndex++;
+	eagle->Mat = mMaterials["EagleTex"].get();
+	eagle->Geo = mGeometries["groundGeo"].get();
+	eagle->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	eagle->IndexCount = eagle->Geo->DrawArgs["ground"].IndexCount;
+	eagle->StartIndexLocation = eagle->Geo->DrawArgs["ground"].StartIndexLocation;
+	eagle->BaseVertexLocation = eagle->Geo->DrawArgs["ground"].BaseVertexLocation;
+
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(eagle.get());
+	mAllRitems.push_back(std::move(eagle));
 }
 
 void Game::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
