@@ -717,9 +717,11 @@ void Game::UpdateMainPassCB(const GameTimer& gt)
 void Game::MoveGameObjects(const GameTimer& gt)
 {
 	//check if plane is at edge
-	if (XMVectorGetX(plane.position) > 20 || XMVectorGetX(plane.position) < -20 )
+	if (XMVectorGetX(plane.position) > 18 || XMVectorGetX(plane.position) < -18 )
 	{
 		plane.velocity *= -1;
+		leftPlane.velocity *= -1;
+		rightPlane.velocity *= -1;
 	}
 
 	//move the main plane
@@ -730,6 +732,20 @@ void Game::MoveGameObjects(const GameTimer& gt)
 	XMStoreFloat4x4(&plane.renderItem->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor) * XMMatrixTranslationFromVector(plane.position));
 	mAllRitems[plane.renderIndex] = std::move(plane.renderItem);
 
+	//move the supporting planes
+	displacement = leftPlane.velocity * gt.DeltaTime(); 
+	leftPlane.position = XMVectorAdd(leftPlane.position, displacement);
+	leftPlane.renderItem = std::move(mAllRitems[leftPlane.renderIndex]);
+	leftPlane.renderItem->NumFramesDirty = 1;
+	XMStoreFloat4x4(&leftPlane.renderItem->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor) * XMMatrixTranslationFromVector(leftPlane.position));
+	mAllRitems[leftPlane.renderIndex] = std::move(leftPlane.renderItem);
+
+	displacement = rightPlane.velocity * gt.DeltaTime();
+	rightPlane.position = XMVectorAdd(rightPlane.position, displacement);
+	rightPlane.renderItem = std::move(mAllRitems[rightPlane.renderIndex]);
+	rightPlane.renderItem->NumFramesDirty = 1;
+	XMStoreFloat4x4(&rightPlane.renderItem->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor) * XMMatrixTranslationFromVector(rightPlane.position));
+	mAllRitems[rightPlane.renderIndex] = std::move(rightPlane.renderItem);
 
 	//move the background down
 	displacement = background.velocity * gt.DeltaTime();
@@ -1400,7 +1416,47 @@ void Game::BuildRenderItems()
 	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(raptor.get());
 	mAllRitems.push_back(std::move(raptor));*/
 
-	auto eagle = std::make_unique<RenderItem>();
+	leftPlane.renderItem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&leftPlane.renderItem->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor) * XMMatrixTranslation(-1.25f * scaleFactor, 1 * scaleFactor, -1.25 * scaleFactor));/// can choose your scaling here
+	spawnpoint = { -1.25f * scaleFactor, 1.0f * scaleFactor, -1.25f * scaleFactor };
+	leftPlane.position = spawnpoint;
+	leftPlane.velocity = { 5.0f, 0.0f, 0.0f };
+	XMStoreFloat4x4(&leftPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	leftPlane.renderItem->ObjCBIndex = objCBIndex++;
+	leftPlane.renderItem->Mat = mMaterials["EagleTex"].get();
+	leftPlane.renderItem->Geo = mGeometries["groundGeo"].get();
+	leftPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	leftPlane.renderItem->IndexCount = leftPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
+	leftPlane.renderItem->StartIndexLocation = leftPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	leftPlane.renderItem->BaseVertexLocation = leftPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
+
+	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(leftPlane.renderItem.get());
+	mAllRitems.push_back(std::move(leftPlane.renderItem));
+	leftPlane.renderIndex = mAllRitems.size() - 1;
+
+
+
+	rightPlane.renderItem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&rightPlane.renderItem->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor)* XMMatrixTranslation(-0.75f * scaleFactor, 1 * scaleFactor, -1.25 * scaleFactor));/// can choose your scaling here
+	spawnpoint = { -0.75f * scaleFactor, 1.0f * scaleFactor, -1.25f * scaleFactor };
+	rightPlane.position = spawnpoint;
+	rightPlane.velocity = { 5.0f, 0.0f, 0.0f };
+	XMStoreFloat4x4(&rightPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	rightPlane.renderItem->ObjCBIndex = objCBIndex++;
+	rightPlane.renderItem->Mat = mMaterials["EagleTex"].get();
+	rightPlane.renderItem->Geo = mGeometries["groundGeo"].get();
+	rightPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	rightPlane.renderItem->IndexCount = rightPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
+	rightPlane.renderItem->StartIndexLocation = rightPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	rightPlane.renderItem->BaseVertexLocation = rightPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
+
+	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(rightPlane.renderItem.get());
+	mAllRitems.push_back(std::move(rightPlane.renderItem));
+	rightPlane.renderIndex = mAllRitems.size() - 1;
+
+
+
+	/*auto eagle = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&eagle->World, XMMatrixScaling(0.01f * scaleFactor, 0.01f * scaleFactor, 0.01f * scaleFactor) * XMMatrixTranslation(1.0f * scaleFactor, 1 * scaleFactor, 0 * scaleFactor));/// can choose your scaling here
 	XMStoreFloat4x4(&eagle->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	eagle->ObjCBIndex = objCBIndex++;
@@ -1412,7 +1468,7 @@ void Game::BuildRenderItems()
 	eagle->BaseVertexLocation = eagle->Geo->DrawArgs["ground"].BaseVertexLocation;
 
 	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(eagle.get());
-	mAllRitems.push_back(std::move(eagle));
+	mAllRitems.push_back(std::move(eagle));*/
 }
 
 void Game::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
