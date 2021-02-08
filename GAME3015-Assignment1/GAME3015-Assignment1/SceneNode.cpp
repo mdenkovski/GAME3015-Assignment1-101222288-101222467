@@ -73,10 +73,10 @@ XMVECTOR SceneNode::getWorldPosition() const
 
 XMVECTOR SceneNode::getWorldTransform() const
 {
-	XMVECTOR transform = {1.0,1.0,1.0};
+	XMVECTOR transform = {0.0,0.0,0.0};
 
-	/*for (const SceneNode* node = this; node != nullptr; node = node->mParent)
-		transform = node->getTransform() * transform;*/
+	for (const SceneNode* node = this; node != nullptr; node = node->mParent)
+		transform = node->mPosition + transform;
 
 	return transform;
 }
