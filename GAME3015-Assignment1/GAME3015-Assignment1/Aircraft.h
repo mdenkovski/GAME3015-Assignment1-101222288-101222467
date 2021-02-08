@@ -13,7 +13,7 @@ public:
 
 
 public:
-	Aircraft();
+	Aircraft(Type type);
 
 	void Update();
 

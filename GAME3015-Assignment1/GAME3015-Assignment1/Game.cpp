@@ -25,49 +25,6 @@ const int gNumFrameResources = 3;
 
 
 
-//// Lightweight structure stores parameters to draw a shape.  This will
-//// vary from app-to-app.
-//struct RenderItem
-//{
-//	RenderItem() = default;
-//
-//	// World matrix of the shape that describes the object's local space
-//	// relative to the world space, which defines the position, orientation,
-//	// and scale of the object in the world.
-//	XMFLOAT4X4 World = MathHelper::Identity4x4();
-//
-//	XMFLOAT4X4 TexTransform = MathHelper::Identity4x4();
-//
-//	// Dirty flag indicating the object data has changed and we need to update the constant buffer.
-//	// Because we have an object cbuffer for each FrameResource, we have to apply the
-//	// update to each FrameResource.  Thus, when we modify obect data we should set 
-//	// NumFramesDirty = gNumFrameResources so that each frame resource gets the update.
-//	int NumFramesDirty = gNumFrameResources;
-//
-//	// Index into GPU constant buffer corresponding to the ObjectCB for this render item.
-//	UINT ObjCBIndex = -1;
-//
-//	Material* Mat = nullptr;
-//	MeshGeometry* Geo = nullptr;
-//
-//	// Primitive topology.
-//	D3D12_PRIMITIVE_TOPOLOGY PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-//
-//	// DrawIndexedInstanced parameters.
-//	UINT IndexCount = 0;
-//	UINT StartIndexLocation = 0;
-//	int BaseVertexLocation = 0;
-//};
-
-//enum class RenderLayer : int
-//{
-//	Opaque = 0,
-//	Transparent,
-//	AlphaTested,
-//	AlphaTestedTreeSprites,
-//	Count
-//};
-
 struct GameObject
 {
 	XMVECTOR position;
@@ -110,27 +67,12 @@ private:
 	void BuildDescriptorHeaps();
 	void BuildShadersAndInputLayouts();
 
-	//void BuildLandGeometry();
-
-	//void BuildCityLandGeometry();
 	void BuildGroundGeometry();
-	//void BuildCNTowerGeometry();
-	//void BuildRogersCenter();
-	//void BuildBuildings();
-	//void BuildWavesGeometry();
-	//void BuildBoxGeometry();
-	//void BuildDiamondGeometry();
-	//void BuildTreeSpritesGeometry();
 
 
 	void BuildPSOs();
 	void BuildFrameResources();
 	void BuildMaterials();
-	//void BuildRenderPyra(float x, float y, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex);
-	//void BuildRenderFlatTopPyra(float x, float y, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex);
-	//void BuildRenderBuilding(float x, float z, float scalex, float scaley, float scalez, UINT& ObjCBIndex);
-	//void BuildRenderRoad(float x, float z, float length,float width, float angle, UINT& ObjCBIndex);
-	//void BuildRenderIntersection(float x, float z, float scalex, float scalez, UINT& ObjCBIndex);
 	void BuildRenderItems();
 	void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
 
@@ -187,16 +129,7 @@ private:
 
 	POINT mLastMousePos;
 
-	//float scaleFactor = 1.0f;
-
-	/*Aircraft mPlane;
-
-	GameObject plane;
-	GameObject leftPlane;
-	GameObject rightPlane;
-	GameObject background;
-
-	SceneNode mSceneGraph;*/
+	
 	World GameWorld;
 };
 
@@ -769,103 +702,9 @@ void Game::MoveGameObjects(const GameTimer& gt)
 
 void Game::LoadTextures()
 {
-	auto backgroundTex = std::make_unique<Texture>();
-	backgroundTex->Name = "BackgroundTex";
-	backgroundTex->Filename = L"../../Textures/Desert.dds";
-	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), backgroundTex->Filename.c_str(),
-		backgroundTex->Resource, backgroundTex->UploadHeap));
-	mTextures[backgroundTex->Name] = std::move(backgroundTex);
+	GameWorld.loadTextures(mTextures, md3dDevice, mCommandList);
 
-	auto EagleTex = std::make_unique<Texture>();
-	EagleTex->Name = "EagleTex";
-	EagleTex->Filename = L"../../Textures/Eagle.dds";
-	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), EagleTex->Filename.c_str(),
-		EagleTex->Resource, EagleTex->UploadHeap));
-	mTextures[EagleTex->Name] = std::move(EagleTex);
-
-	auto RaptorTex = std::make_unique<Texture>();
-	RaptorTex->Name = "RaptorTex";
-	RaptorTex->Filename = L"../../Textures/Raptor.dds";
-	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-		mCommandList.Get(), RaptorTex->Filename.c_str(),
-		RaptorTex->Resource, RaptorTex->UploadHeap));
-	mTextures[RaptorTex->Name] = std::move(RaptorTex);
-
-	//auto waterTex = std::make_unique<Texture>();
-	//waterTex->Name = "waterTex";
-	//waterTex->Filename = L"../../Textures/water1.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), waterTex->Filename.c_str(),
-	//	waterTex->Resource, waterTex->UploadHeap));
-	//mTextures[waterTex->Name] = std::move(waterTex);
-
-	//auto roofTex = std::make_unique<Texture>();
-	//roofTex->Name = "roofTex";
-	//roofTex->Filename = L"../../Textures/Roof.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), roofTex->Filename.c_str(),
-	//	roofTex->Resource, roofTex->UploadHeap));
-	//mTextures[roofTex->Name] = std::move(roofTex);
-
-	//auto buildingTex = std::make_unique<Texture>();
-	//buildingTex->Name = "buildingTex";
-	//buildingTex->Filename = L"../../Textures/building.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), buildingTex->Filename.c_str(),
-	//	buildingTex->Resource, buildingTex->UploadHeap));
-	//mTextures[buildingTex->Name] = std::move(buildingTex);
-
-	//auto concreteTex = std::make_unique<Texture>();
-	//concreteTex->Name = "concreteTex";
-	//concreteTex->Filename = L"../../Textures/concrete.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), concreteTex->Filename.c_str(),
-	//	concreteTex->Resource, concreteTex->UploadHeap));
-	//mTextures[concreteTex->Name] = std::move(concreteTex);
-
-	//auto brickTex = std::make_unique<Texture>();
-	//brickTex->Name = "brickTex";
-	//brickTex->Filename = L"../../Textures/bricks.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), brickTex->Filename.c_str(),
-	//	brickTex->Resource, brickTex->UploadHeap));
-	//mTextures[brickTex->Name] = std::move(brickTex);
-
-	//auto fenceTex = std::make_unique<Texture>();
-	//fenceTex->Name = "fenceTex";
-	//fenceTex->Filename = L"../../Textures/WireFence.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), fenceTex->Filename.c_str(),
-	//	fenceTex->Resource, fenceTex->UploadHeap));
-	//mTextures[fenceTex->Name] = std::move(fenceTex);
-
-	//auto roadTex = std::make_unique<Texture>();
-	//roadTex->Name = "roadTex";
-	//roadTex->Filename = L"../../Textures/road.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), roadTex->Filename.c_str(),
-	//	roadTex->Resource, roadTex->UploadHeap));
-	//mTextures[roadTex->Name] = std::move(roadTex);
-
-	//auto roadITex = std::make_unique<Texture>();
-	//roadITex->Name = "roadITex";
-	//roadITex->Filename = L"../../Textures/intersection.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), roadITex->Filename.c_str(),
-	//	roadITex->Resource, roadITex->UploadHeap));
-	//mTextures[roadITex->Name] = std::move(roadITex);
-
-	//auto treeArrayTex = std::make_unique<Texture>();
-	//treeArrayTex->Name = "treeArrayTex";
-	//treeArrayTex->Filename = L"../../Textures/treeArray.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), treeArrayTex->Filename.c_str(),
-	//	treeArrayTex->Resource, treeArrayTex->UploadHeap));
-	//mTextures[treeArrayTex->Name] = std::move(treeArrayTex);
-
-
+	
 }
 
 void Game::BuildRootSignature()
@@ -928,15 +767,7 @@ void Game::BuildDescriptorHeaps()
 	auto EagleTex = mTextures["EagleTex"]->Resource;
 	auto RaptorTex = mTextures["RaptorTex"]->Resource;
 
-	//auto waterTex = mTextures["waterTex"]->Resource;
-	//auto roofTex = mTextures["roofTex"]->Resource;
-	//auto buildingTex = mTextures["buildingTex"]->Resource;
-	//auto concreteTex = mTextures["concreteTex"]->Resource;
-	//auto brickTex = mTextures["brickTex"]->Resource;
-	//auto fenceTex = mTextures["fenceTex"]->Resource;
-	//auto roadTex = mTextures["roadTex"]->Resource;
-	//auto roadITex = mTextures["roadITex"]->Resource;
-	//auto treeArrayTex = mTextures["treeArrayTex"]->Resource;
+	
 
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -959,56 +790,7 @@ void Game::BuildDescriptorHeaps()
 	srvDesc.Format = RaptorTex->GetDesc().Format;
 	md3dDevice->CreateShaderResourceView(RaptorTex.Get(), &srvDesc, hDescriptor);
 
-	//// next descriptor - building texture
-	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
-	//srvDesc.Format = buildingTex->GetDesc().Format;
-	//md3dDevice->CreateShaderResourceView(buildingTex.Get(), &srvDesc, hDescriptor);
-
-	//// next descriptor - concrete texture
-	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
-	//srvDesc.Format = concreteTex->GetDesc().Format;
-	//md3dDevice->CreateShaderResourceView(concreteTex.Get(), &srvDesc, hDescriptor);
-
-	//// next descriptor - brick texture
-	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
-	//srvDesc.Format = brickTex->GetDesc().Format;
-	//md3dDevice->CreateShaderResourceView(brickTex.Get(), &srvDesc, hDescriptor);
-
-	//// next descriptor - fence texture
-	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
-	//srvDesc.Format = fenceTex->GetDesc().Format;
-	//md3dDevice->CreateShaderResourceView(fenceTex.Get(), &srvDesc, hDescriptor);
-
-	//// next descriptor - road texture
-	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
-	//srvDesc.Format = roadTex->GetDesc().Format;
-	//md3dDevice->CreateShaderResourceView(roadTex.Get(), &srvDesc, hDescriptor);
-
-	//// next descriptor - roadI texture
-	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
-	//srvDesc.Format = roadITex->GetDesc().Format;
-	//md3dDevice->CreateShaderResourceView(roadITex.Get(), &srvDesc, hDescriptor);
-
-	//// next descriptor
-	//hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
-
-	//auto desc = treeArrayTex->GetDesc();
-	//srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
-	//srvDesc.Format = treeArrayTex->GetDesc().Format;
-	//srvDesc.Texture2DArray.MostDetailedMip = 0;
-	//srvDesc.Texture2DArray.MipLevels = -1;
-	//srvDesc.Texture2DArray.FirstArraySlice = 0;
-	//srvDesc.Texture2DArray.ArraySize = treeArrayTex->GetDesc().DepthOrArraySize;
-	//md3dDevice->CreateShaderResourceView(treeArrayTex.Get(), &srvDesc, hDescriptor);
-
-
+	
 }
 
 void Game::BuildShadersAndInputLayouts()
@@ -1221,15 +1003,7 @@ void Game::BuildMaterials()
 	BackgroundTex->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	BackgroundTex->Roughness = 0.125f;
 
-	//// This is not a good water material definition, but we do not have all the rendering
-	//// tools we need (transparency, environment reflection), so we fake it for now.
-	//auto water = std::make_unique<Material>();
-	//water->Name = "water";
-	//water->MatCBIndex = matIndex;
-	//water->DiffuseSrvHeapIndex = matIndex++;
-	//water->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.5f);
-	//water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
-	//water->Roughness = 0.0f;
+	
 
 	auto Eagle = std::make_unique<Material>();
 	Eagle->Name = "Eagle";
@@ -1247,65 +1021,12 @@ void Game::BuildMaterials()
 	Raptor->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	Raptor->Roughness = 0.125f;
 
-	//auto concrete = std::make_unique<Material>();
-	//concrete->Name = "concrete";
-	//concrete->MatCBIndex = matIndex;
-	//concrete->DiffuseSrvHeapIndex = matIndex++;
-	//concrete->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	//concrete->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	//concrete->Roughness = 0.125f;
-
-	//auto brick = std::make_unique<Material>();
-	//brick->Name = "brick";
-	//brick->MatCBIndex = matIndex;
-	//brick->DiffuseSrvHeapIndex = matIndex++;
-	//brick->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	//brick->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	//brick->Roughness = 0.125f;
-
-	//auto wirefence = std::make_unique<Material>();
-	//wirefence->Name = "wirefence";
-	//wirefence->MatCBIndex = matIndex;
-	//wirefence->DiffuseSrvHeapIndex = matIndex++;
-	//wirefence->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	//wirefence->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	//wirefence->Roughness = 0.25f;
-
-	//auto road = std::make_unique<Material>();
-	//road->Name = "road";
-	//road->MatCBIndex = matIndex;
-	//road->DiffuseSrvHeapIndex = matIndex++;
-	//road->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	//road->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	//road->Roughness = 0.125f;
-
-	//auto roadI = std::make_unique<Material>();
-	//roadI->Name = "roadI";
-	//roadI->MatCBIndex = matIndex;
-	//roadI->DiffuseSrvHeapIndex = matIndex++;
-	//roadI->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	//roadI->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	//roadI->Roughness = 0.125f;
-
-
-	//auto treeSprites = std::make_unique<Material>();
-	//treeSprites->Name = "treeSprites";
-	//treeSprites->MatCBIndex = matIndex;
-	//treeSprites->DiffuseSrvHeapIndex = matIndex++;
-	//treeSprites->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	//treeSprites->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	//treeSprites->Roughness = 0.125f;
+	
 
 	mMaterials["BackgroundTex"] = std::move(BackgroundTex);
 	mMaterials["EagleTex"] = std::move(Eagle);
 	mMaterials["RaptorTex"] = std::move(Raptor);
-	//mMaterials["building"] = std::move(building);
-	//mMaterials["concrete"] = std::move(concrete);
-	//mMaterials["brick"] = std::move(brick);
-	//mMaterials["wirefence"] = std::move(wirefence);
-	//mMaterials["road"] = std::move(road);
-	//mMaterials["roadI"] = std::move(roadI);
-	//mMaterials["treeSprites"] = std::move(treeSprites);
+	
 
 }
 
@@ -1313,114 +1034,6 @@ void Game::BuildMaterials()
 void Game::BuildRenderItems()
 {
 	GameWorld.buildScene(mAllRitems, mMaterials, mTextures, mGeometries, mRitemLayer);
-
-	//UINT objCBIndex = 0;
-
-	//
-
-
-	//// land for the city
-	//background.renderItem = std::make_unique<RenderItem>();
-	//XMStoreFloat4x4(&background.renderItem->World, XMMatrixScaling(1.0f , 1.0f , 1.0f ) * XMMatrixTranslation(0.0f , 0 , 0 ));/// can choose your scaling here
-	//XMStoreFloat4x4(&background.renderItem->TexTransform, XMMatrixScaling(10.0f, 10.0f, 10.0f));
-	//XMVECTOR spawnpointBackground = { 0, 0, 0 };
-	//background.position = spawnpointBackground;
-	//background.velocity = { 0.0f, 0.0f, -0.5f };
-	//background.renderItem->ObjCBIndex = objCBIndex++;
-	//background.renderItem->Mat = mMaterials["BackgroundTex"].get();
-	//background.renderItem->Geo = mGeometries["groundGeo"].get();
-	//background.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	//background.renderItem->IndexCount = background.renderItem->Geo->DrawArgs["ground"].IndexCount;
-	//background.renderItem->StartIndexLocation = background.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
-	//background.renderItem->BaseVertexLocation = background.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
-
-	//mRitemLayer[(int)RenderLayer::Opaque].push_back(background.renderItem.get());
-	//mAllRitems.push_back(std::move(background.renderItem));
-	//background.renderIndex = mAllRitems.size() - 1;
-
-
-
-	//
-	//mPlane.renderItem = std::make_unique<RenderItem>();
-	//XMStoreFloat4x4(&mPlane.renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(0.0f, 1, 0.0f));/// can choose your scaling here
-	//XMVECTOR spawnpoint = { 0.0f, 1.0f, 0.0f };
-	//mPlane.mPosition = spawnpoint;
-	//mPlane.mVelocity = { 0.5f, 0.0f, 0.0f };
-	////XMStorevector(&mPlane.position, spawnpoint);
-	//XMStoreFloat4x4(&mPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-	//mPlane.renderItem->ObjCBIndex = objCBIndex++;
-	//mPlane.renderItem->Mat = mMaterials["RaptorTex"].get();
-	//mPlane.renderItem->Geo = mGeometries["groundGeo"].get();
-	//mPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	//mPlane.renderItem->IndexCount = mPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
-	//mPlane.renderItem->StartIndexLocation = mPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
-	//mPlane.renderItem->BaseVertexLocation = mPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
-
-	//mRitemLayer[(int)RenderLayer::AlphaTested].push_back(mPlane.renderItem.get());
-	//mAllRitems.push_back(std::move(mPlane.renderItem));
-	//mPlane.renderIndex = mAllRitems.size() - 1;
-
-
-	//plane.renderItem = std::make_unique<RenderItem>();
-	//XMStoreFloat4x4(&plane.renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f ) * XMMatrixTranslation(-1.0f , 1 , -1 ));/// can choose your scaling here
-	//spawnpoint = { -1.0f , 1, -1  };
-	//plane.position = spawnpoint;
-	//plane.velocity = {0.5f, 0.0f, 0.0f};
-	////XMStorevector(&plane.position, spawnpoint);
-	//XMStoreFloat4x4(&plane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-	//plane.renderItem->ObjCBIndex = objCBIndex++;
-	//plane.renderItem->Mat = mMaterials["RaptorTex"].get();
-	//plane.renderItem->Geo = mGeometries["groundGeo"].get();
-	//plane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	//plane.renderItem->IndexCount = plane.renderItem->Geo->DrawArgs["ground"].IndexCount;
-	//plane.renderItem->StartIndexLocation = plane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
-	//plane.renderItem->BaseVertexLocation = plane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
-
-	//mRitemLayer[(int)RenderLayer::AlphaTested].push_back(plane.renderItem.get());
-	//mAllRitems.push_back(std::move(plane.renderItem));
-	//plane.renderIndex = mAllRitems.size() - 1;
-
-
-
-
-	//leftPlane.renderItem = std::make_unique<RenderItem>();
-	//XMStoreFloat4x4(&leftPlane.renderItem->World, XMMatrixScaling(0.01f , 0.01f, 0.01f ) * XMMatrixTranslation(-1.25f , 1 , -1.25 ));/// can choose your scaling here
-	//spawnpoint = { -1.25f , 1.0f , -1.25f };
-	//leftPlane.position = spawnpoint;
-	//leftPlane.velocity = { 0.5f, 0.0f, 0.0f };
-	//XMStoreFloat4x4(&leftPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-	//leftPlane.renderItem->ObjCBIndex = objCBIndex++;
-	//leftPlane.renderItem->Mat = mMaterials["EagleTex"].get();
-	//leftPlane.renderItem->Geo = mGeometries["groundGeo"].get();
-	//leftPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	//leftPlane.renderItem->IndexCount = leftPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
-	//leftPlane.renderItem->StartIndexLocation = leftPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
-	//leftPlane.renderItem->BaseVertexLocation = leftPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
-
-	//mRitemLayer[(int)RenderLayer::AlphaTested].push_back(leftPlane.renderItem.get());
-	//mAllRitems.push_back(std::move(leftPlane.renderItem));
-	//leftPlane.renderIndex = mAllRitems.size() - 1;
-
-
-
-	//rightPlane.renderItem = std::make_unique<RenderItem>();
-	//XMStoreFloat4x4(&rightPlane.renderItem->World, XMMatrixScaling(0.01f , 0.01f , 0.01f)* XMMatrixTranslation(-0.75f , 1 , -1.25 ));/// can choose your scaling here
-	//spawnpoint = { -0.75f , 1.0f , -1.25f  };
-	//rightPlane.position = spawnpoint;
-	//rightPlane.velocity = { 0.5f, 0.0f, 0.0f };
-	//XMStoreFloat4x4(&rightPlane.renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-	//rightPlane.renderItem->ObjCBIndex = objCBIndex++;
-	//rightPlane.renderItem->Mat = mMaterials["EagleTex"].get();
-	//rightPlane.renderItem->Geo = mGeometries["groundGeo"].get();
-	//rightPlane.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	//rightPlane.renderItem->IndexCount = rightPlane.renderItem->Geo->DrawArgs["ground"].IndexCount;
-	//rightPlane.renderItem->StartIndexLocation = rightPlane.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
-	//rightPlane.renderItem->BaseVertexLocation = rightPlane.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
-
-	//mRitemLayer[(int)RenderLayer::AlphaTested].push_back(rightPlane.renderItem.get());
-	//mAllRitems.push_back(std::move(rightPlane.renderItem));
-	//rightPlane.renderIndex = mAllRitems.size() - 1;
-
 
 
 }
