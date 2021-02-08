@@ -70,7 +70,6 @@ public:
 
 	std::unique_ptr<RenderItem> renderItem;
 	int renderIndex;
-	XMVECTOR mPosition;
 
 	XMVECTOR mPosition;
 	XMVECTOR Scale;
