@@ -45,38 +45,38 @@ void SceneNode::updateChildren(GameTimer dt)
 	}
 }
 
-void SceneNode::draw() const
+void SceneNode::draw(ID3D12GraphicsCommandList* cmdList, RenderItem* ritems) const
 {
-	// Apply transform of current node
-	states.transform *= getTransform();
+	//// Apply transform of current node
+	//ritems.transform *= getTransform();
 
-	// Draw node and children with changed transform
-	drawCurrent(target, states);
-	drawChildren(target, states);
+	//// Draw node and children with changed transform
+	//drawCurrent(cmdList, ritems);
+	//drawChildren(cmdList, ritems);
 }
 
-void SceneNode::drawCurrent() const
+void SceneNode::drawCurrent(ID3D12GraphicsCommandList* cmdList, RenderItem* ritems) const
 {
 	// Do nothing by default
 }
 
-void SceneNode::drawChildren() const
+void SceneNode::drawChildren(ID3D12GraphicsCommandList* cmdList, RenderItem* ritems) const
 {
-	for (const Ptr& child : mChildren)
-		child->draw(target, states);
+	/*for (const Ptr& child : mChildren)
+		child->draw(cmdList, ritems);*/
 }
 
-XMFLOAT3 SceneNode::getWorldPosition() const
+XMVECTOR SceneNode::getWorldPosition() const
 {
 	return getWorldTransform() ;
 }
 
-XMFLOAT3 SceneNode::getWorldTransform() const
+XMVECTOR SceneNode::getWorldTransform() const
 {
-	XMFLOAT3 transform(1.0f, 1.0f, 1.0f);
+	XMVECTOR transform = {1.0,1.0,1.0};
 
-	for (const SceneNode* node = this; node != nullptr; node = node->mParent)
-		transform = node->getTransform() * transform;
+	/*for (const SceneNode* node = this; node != nullptr; node = node->mParent)
+		transform = node->getTransform() * transform;*/
 
 	return transform;
 }

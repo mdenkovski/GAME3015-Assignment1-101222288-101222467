@@ -6,12 +6,14 @@ class Entity : public SceneNode
 {
 
 public:
-	void setVelocity(Vector3f velocity);
-	void setVelocity(float vx, float vy);
-	Vector3f getVelocity() const;
-private:
-	Vector3f mVelocity;
+	void setVelocity(XMVECTOR velocity);
+	void setVelocity(float vx, float vy, float vz);
+	XMVECTOR getVelocity() const;
 
+	virtual	void		updateCurrent(GameTimer dt, RenderItem* renderItem);
+private:
+	XMVECTOR mVelocity;
+	XMVECTOR mPosition;
 
 //public:
 //	void				setVelocity(sf::Vector2f velocity);
