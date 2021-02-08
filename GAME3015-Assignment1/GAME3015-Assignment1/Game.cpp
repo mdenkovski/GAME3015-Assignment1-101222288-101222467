@@ -186,6 +186,7 @@ bool Game::Initialize()
 
 	mWaves = std::make_unique<Waves>(40, 80, 0.25, 0.03f, 1.0, 0.2f);
 
+
 	//Step 1 Load the textures
 	LoadTextures();
 
@@ -206,6 +207,7 @@ bool Game::Initialize()
 
 	BuildFrameResources();
 	BuildPSOs();
+
 
 	// Execute the initialization commands.
 	ThrowIfFailed(mCommandList->Close());

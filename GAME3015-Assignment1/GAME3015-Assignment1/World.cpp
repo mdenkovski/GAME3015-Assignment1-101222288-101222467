@@ -1,10 +1,20 @@
 #include "World.h"
 
+World::World(std::vector<std::unique_ptr<RenderItem>>& renderList, std::unordered_map<std::string, std::unique_ptr<Material>>& Materials,
+	std::unordered_map<std::string, std::unique_ptr<Texture>>& Textures,
+	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& Geometries,
+	std::vector<RenderItem*> RitemLayer[],
+	Microsoft::WRL::ComPtr<ID3D12Device> Device, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList)
+{
+
+	loadTextures(Textures, Device, mCommandList);
+	buildMaterials(Materials);
+	buildScene(renderList, Materials, Textures, Geometries, RitemLayer);
+}
+
 World::World()
 {
-	mPlane = new Aircraft(Aircraft::Raptor);
-	leftPlane = new Aircraft(Aircraft::Eagle);
-	rightPlane = new Aircraft(Aircraft::Eagle);
+	
 }
 
 
@@ -119,6 +129,8 @@ void World::buildScene(std::vector<std::unique_ptr<RenderItem>>& renderList, std
 		mSceneGraph.attachChild(std::move(layer));
 	}
 
+
+
 	background.renderItem = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&background.renderItem->World, XMMatrixScaling(1.0f, 1.0f, 1.0f) * XMMatrixTranslation(0.0f, 0, 0));/// can choose your scaling here
 	XMStoreFloat4x4(&background.renderItem->TexTransform, XMMatrixScaling(10.0f, 10.0f, 10.0f));
@@ -139,6 +151,7 @@ void World::buildScene(std::vector<std::unique_ptr<RenderItem>>& renderList, std
 	background.renderIndex = renderList.size() - 1;
 	
 	//make the main plane
+	mPlane = new Aircraft(Aircraft::Raptor);
 	mPlane->renderItem = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&mPlane->renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(-1.0f, 1, -1));/// can choose your scaling here
 	XMVECTOR spawnpoint = { -1.0f , 1 , -1 };
@@ -160,6 +173,7 @@ void World::buildScene(std::vector<std::unique_ptr<RenderItem>>& renderList, std
 	mPlane->renderIndex = renderList.size() - 1;
 
 	//make the left plane
+	leftPlane = new Aircraft(Aircraft::Eagle);
 	leftPlane->renderItem = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&leftPlane->renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(-1.25f, 1, -1.25));/// can choose your scaling here
 	spawnpoint = { -1.25f , 1.0f , -1.25f };
@@ -181,6 +195,7 @@ void World::buildScene(std::vector<std::unique_ptr<RenderItem>>& renderList, std
 
 
 	//make the right plane
+	rightPlane = new Aircraft(Aircraft::Eagle);
 	rightPlane->renderItem = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&rightPlane->renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(-0.75f, 1, -1.25));/// can choose your scaling here
 	spawnpoint = { -0.75f , 1.0f , -1.25f };
