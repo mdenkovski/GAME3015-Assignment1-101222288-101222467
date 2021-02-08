@@ -769,7 +769,9 @@ void Game::MoveGameObjects(const GameTimer& gt)
 
 void Game::LoadTextures()
 {
-	auto backgroundTex = std::make_unique<Texture>();
+	GameWorld.loadTextures(mTextures, md3dDevice, mCommandList);
+
+	/*auto backgroundTex = std::make_unique<Texture>();
 	backgroundTex->Name = "BackgroundTex";
 	backgroundTex->Filename = L"../../Textures/Desert.dds";
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
@@ -791,79 +793,79 @@ void Game::LoadTextures()
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
 		mCommandList.Get(), RaptorTex->Filename.c_str(),
 		RaptorTex->Resource, RaptorTex->UploadHeap));
-	mTextures[RaptorTex->Name] = std::move(RaptorTex);
+	mTextures[RaptorTex->Name] = std::move(RaptorTex);*/
 
-	//auto waterTex = std::make_unique<Texture>();
-	//waterTex->Name = "waterTex";
-	//waterTex->Filename = L"../../Textures/water1.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), waterTex->Filename.c_str(),
-	//	waterTex->Resource, waterTex->UploadHeap));
-	//mTextures[waterTex->Name] = std::move(waterTex);
+	////auto waterTex = std::make_unique<Texture>();
+	////waterTex->Name = "waterTex";
+	////waterTex->Filename = L"../../Textures/water1.dds";
+	////ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	////	mCommandList.Get(), waterTex->Filename.c_str(),
+	////	waterTex->Resource, waterTex->UploadHeap));
+	////mTextures[waterTex->Name] = std::move(waterTex);
 
-	//auto roofTex = std::make_unique<Texture>();
-	//roofTex->Name = "roofTex";
-	//roofTex->Filename = L"../../Textures/Roof.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), roofTex->Filename.c_str(),
-	//	roofTex->Resource, roofTex->UploadHeap));
-	//mTextures[roofTex->Name] = std::move(roofTex);
+	////auto roofTex = std::make_unique<Texture>();
+	////roofTex->Name = "roofTex";
+	////roofTex->Filename = L"../../Textures/Roof.dds";
+	////ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	////	mCommandList.Get(), roofTex->Filename.c_str(),
+	////	roofTex->Resource, roofTex->UploadHeap));
+	////mTextures[roofTex->Name] = std::move(roofTex);
 
-	//auto buildingTex = std::make_unique<Texture>();
-	//buildingTex->Name = "buildingTex";
-	//buildingTex->Filename = L"../../Textures/building.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), buildingTex->Filename.c_str(),
-	//	buildingTex->Resource, buildingTex->UploadHeap));
-	//mTextures[buildingTex->Name] = std::move(buildingTex);
+	////auto buildingTex = std::make_unique<Texture>();
+	////buildingTex->Name = "buildingTex";
+	////buildingTex->Filename = L"../../Textures/building.dds";
+	////ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	////	mCommandList.Get(), buildingTex->Filename.c_str(),
+	////	buildingTex->Resource, buildingTex->UploadHeap));
+	////mTextures[buildingTex->Name] = std::move(buildingTex);
 
-	//auto concreteTex = std::make_unique<Texture>();
-	//concreteTex->Name = "concreteTex";
-	//concreteTex->Filename = L"../../Textures/concrete.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), concreteTex->Filename.c_str(),
-	//	concreteTex->Resource, concreteTex->UploadHeap));
-	//mTextures[concreteTex->Name] = std::move(concreteTex);
+	////auto concreteTex = std::make_unique<Texture>();
+	////concreteTex->Name = "concreteTex";
+	////concreteTex->Filename = L"../../Textures/concrete.dds";
+	////ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	////	mCommandList.Get(), concreteTex->Filename.c_str(),
+	////	concreteTex->Resource, concreteTex->UploadHeap));
+	////mTextures[concreteTex->Name] = std::move(concreteTex);
 
-	//auto brickTex = std::make_unique<Texture>();
-	//brickTex->Name = "brickTex";
-	//brickTex->Filename = L"../../Textures/bricks.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), brickTex->Filename.c_str(),
-	//	brickTex->Resource, brickTex->UploadHeap));
-	//mTextures[brickTex->Name] = std::move(brickTex);
+	////auto brickTex = std::make_unique<Texture>();
+	////brickTex->Name = "brickTex";
+	////brickTex->Filename = L"../../Textures/bricks.dds";
+	////ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	////	mCommandList.Get(), brickTex->Filename.c_str(),
+	////	brickTex->Resource, brickTex->UploadHeap));
+	////mTextures[brickTex->Name] = std::move(brickTex);
 
-	//auto fenceTex = std::make_unique<Texture>();
-	//fenceTex->Name = "fenceTex";
-	//fenceTex->Filename = L"../../Textures/WireFence.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), fenceTex->Filename.c_str(),
-	//	fenceTex->Resource, fenceTex->UploadHeap));
-	//mTextures[fenceTex->Name] = std::move(fenceTex);
+	////auto fenceTex = std::make_unique<Texture>();
+	////fenceTex->Name = "fenceTex";
+	////fenceTex->Filename = L"../../Textures/WireFence.dds";
+	////ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	////	mCommandList.Get(), fenceTex->Filename.c_str(),
+	////	fenceTex->Resource, fenceTex->UploadHeap));
+	////mTextures[fenceTex->Name] = std::move(fenceTex);
 
-	//auto roadTex = std::make_unique<Texture>();
-	//roadTex->Name = "roadTex";
-	//roadTex->Filename = L"../../Textures/road.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), roadTex->Filename.c_str(),
-	//	roadTex->Resource, roadTex->UploadHeap));
-	//mTextures[roadTex->Name] = std::move(roadTex);
+	////auto roadTex = std::make_unique<Texture>();
+	////roadTex->Name = "roadTex";
+	////roadTex->Filename = L"../../Textures/road.dds";
+	////ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	////	mCommandList.Get(), roadTex->Filename.c_str(),
+	////	roadTex->Resource, roadTex->UploadHeap));
+	////mTextures[roadTex->Name] = std::move(roadTex);
 
-	//auto roadITex = std::make_unique<Texture>();
-	//roadITex->Name = "roadITex";
-	//roadITex->Filename = L"../../Textures/intersection.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), roadITex->Filename.c_str(),
-	//	roadITex->Resource, roadITex->UploadHeap));
-	//mTextures[roadITex->Name] = std::move(roadITex);
+	////auto roadITex = std::make_unique<Texture>();
+	////roadITex->Name = "roadITex";
+	////roadITex->Filename = L"../../Textures/intersection.dds";
+	////ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	////	mCommandList.Get(), roadITex->Filename.c_str(),
+	////	roadITex->Resource, roadITex->UploadHeap));
+	////mTextures[roadITex->Name] = std::move(roadITex);
 
-	//auto treeArrayTex = std::make_unique<Texture>();
-	//treeArrayTex->Name = "treeArrayTex";
-	//treeArrayTex->Filename = L"../../Textures/treeArray.dds";
-	//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//	mCommandList.Get(), treeArrayTex->Filename.c_str(),
-	//	treeArrayTex->Resource, treeArrayTex->UploadHeap));
-	//mTextures[treeArrayTex->Name] = std::move(treeArrayTex);
+	////auto treeArrayTex = std::make_unique<Texture>();
+	////treeArrayTex->Name = "treeArrayTex";
+	////treeArrayTex->Filename = L"../../Textures/treeArray.dds";
+	////ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	////	mCommandList.Get(), treeArrayTex->Filename.c_str(),
+	////	treeArrayTex->Resource, treeArrayTex->UploadHeap));
+	////mTextures[treeArrayTex->Name] = std::move(treeArrayTex);
 
 
 }

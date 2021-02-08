@@ -37,9 +37,31 @@ void World::draw()
 {
 }
 
-void World::loadTextures()
+void World::loadTextures(std::unordered_map<std::string, std::unique_ptr<Texture>>& Textures, Microsoft::WRL::ComPtr<ID3D12Device> Device, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList)
 {
+	auto backgroundTex = std::make_unique<Texture>();
+	backgroundTex->Name = "BackgroundTex";
+	backgroundTex->Filename = L"../../Textures/Desert.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(Device.Get(),
+		mCommandList.Get(), backgroundTex->Filename.c_str(),
+		backgroundTex->Resource, backgroundTex->UploadHeap));
+	Textures[backgroundTex->Name] = std::move(backgroundTex);
 
+	auto EagleTex = std::make_unique<Texture>();
+	EagleTex->Name = "EagleTex";
+	EagleTex->Filename = L"../../Textures/Eagle.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(Device.Get(),
+		mCommandList.Get(), EagleTex->Filename.c_str(),
+		EagleTex->Resource, EagleTex->UploadHeap));
+	Textures[EagleTex->Name] = std::move(EagleTex);
+
+	auto RaptorTex = std::make_unique<Texture>();
+	RaptorTex->Name = "RaptorTex";
+	RaptorTex->Filename = L"../../Textures/Raptor.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(Device.Get(),
+		mCommandList.Get(), RaptorTex->Filename.c_str(),
+		RaptorTex->Resource, RaptorTex->UploadHeap));
+	Textures[RaptorTex->Name] = std::move(RaptorTex);
 }
 
 void World::buildScene(std::vector<std::unique_ptr<RenderItem>>& renderList, std::unordered_map<std::string, std::unique_ptr<Material>>& Materials,
