@@ -5,7 +5,7 @@
 
 
 
-	const int gNumFrameResources = 3;
+const int gNumFrameResources = 3;
 
 World::World(HINSTANCE hInstance)
 	: D3DApp(hInstance)
