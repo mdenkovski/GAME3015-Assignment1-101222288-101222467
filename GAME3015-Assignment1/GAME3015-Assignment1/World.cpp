@@ -1,24 +1,24 @@
 //***************************************************************************************
 // Game.cpp 
 //***************************************************************************************
-#include "Game.h"
+#include "World.h"
 
 
 
 	const int gNumFrameResources = 3;
 
-Game::Game(HINSTANCE hInstance)
+World::World(HINSTANCE hInstance)
 	: D3DApp(hInstance)
 {
 }
 
-Game::~Game()
+World::~World()
 {
 	if (md3dDevice != nullptr)
 		FlushCommandQueue();
 }
 
-bool Game::Initialize()
+bool World::Initialize()
 {
 	srand((unsigned)time(0));
 	if (!D3DApp::Initialize())
@@ -71,7 +71,7 @@ bool Game::Initialize()
 	return true;
 }
 
-void Game::OnResize()
+void World::OnResize()
 {
 	D3DApp::OnResize();
 
@@ -82,7 +82,7 @@ void Game::OnResize()
 	mCamera.SetLens(0.25f*MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
 }
 
-void Game::Update(const GameTimer& gt)
+void World::Update(const GameTimer& gt)
 {
 	OnKeyboardInput(gt);
 	//UpdateCamera(gt);
@@ -111,7 +111,7 @@ void Game::Update(const GameTimer& gt)
 
 }
 
-void Game::Draw(const GameTimer& gt)
+void World::Draw(const GameTimer& gt)
 {
 	auto cmdListAlloc = mCurrFrameResource->CmdListAlloc;
 
@@ -180,7 +180,7 @@ void Game::Draw(const GameTimer& gt)
 	mCommandQueue->Signal(mFence.Get(), mCurrentFence);
 }
 
-void Game::OnMouseDown(WPARAM btnState, int x, int y)
+void World::OnMouseDown(WPARAM btnState, int x, int y)
 {
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
@@ -188,12 +188,12 @@ void Game::OnMouseDown(WPARAM btnState, int x, int y)
 	SetCapture(mhMainWnd);
 }
 
-void Game::OnMouseUp(WPARAM btnState, int x, int y)
+void World::OnMouseUp(WPARAM btnState, int x, int y)
 {
 	ReleaseCapture();
 }
 
-void Game::OnMouseMove(WPARAM btnState, int x, int y)
+void World::OnMouseMove(WPARAM btnState, int x, int y)
 {
 	//if ((btnState & MK_LBUTTON) != 0)
 	//{
@@ -238,7 +238,7 @@ void Game::OnMouseMove(WPARAM btnState, int x, int y)
 	mLastMousePos.y = y;
 }
 
-void Game::OnKeyboardInput(const GameTimer& gt)
+void World::OnKeyboardInput(const GameTimer& gt)
 {
 
 	const float dt = gt.DeltaTime();
@@ -415,7 +415,7 @@ void Game::OnKeyboardInput(const GameTimer& gt)
 //	waterMat->NumFramesDirty = gNumFrameResources;
 //}
 
-void Game::UpdateObjectCBs(const GameTimer& gt)
+void World::UpdateObjectCBs(const GameTimer& gt)
 {
 	auto currObjectCB = mCurrFrameResource->ObjectCB.get();
 	for (auto& e : mAllRitems)
@@ -439,7 +439,7 @@ void Game::UpdateObjectCBs(const GameTimer& gt)
 	}
 }
 
-void Game::UpdateMaterialCBs(const GameTimer& gt)
+void World::UpdateMaterialCBs(const GameTimer& gt)
 {
 	auto currMaterialCB = mCurrFrameResource->MaterialCB.get();
 	for (auto& e : mMaterials)
@@ -465,7 +465,7 @@ void Game::UpdateMaterialCBs(const GameTimer& gt)
 	}
 }
 
-void Game::UpdateMainPassCB(const GameTimer& gt)
+void World::UpdateMainPassCB(const GameTimer& gt)
 {
 	XMMATRIX view = mCamera.GetView();
 	XMMATRIX proj = mCamera.GetProj();
@@ -507,7 +507,7 @@ void Game::UpdateMainPassCB(const GameTimer& gt)
 	currPassCB->CopyData(0, mMainPassCB);
 }
 
-void Game::MoveGameObjects(const GameTimer& gt)
+void World::MoveGameObjects(const GameTimer& gt)
 {
 	//GameWorld.update(gt, mAllRitems);
 
@@ -555,7 +555,7 @@ void Game::MoveGameObjects(const GameTimer& gt)
 	
 }
 
-void Game::LoadTextures()
+void World::LoadTextures()
 {
 
 	auto backgroundTex = std::make_unique<Texture>();
@@ -585,7 +585,7 @@ void Game::LoadTextures()
 	
 }
 
-void Game::BuildRootSignature()
+void World::BuildRootSignature()
 {
 	CD3DX12_DESCRIPTOR_RANGE texTable;
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
@@ -625,7 +625,7 @@ void Game::BuildRootSignature()
 		IID_PPV_ARGS(mRootSignature.GetAddressOf())));
 }
 
-void Game::BuildDescriptorHeaps()
+void World::BuildDescriptorHeaps()
 {
 	//
 	// Create the SRV heap.
@@ -671,7 +671,7 @@ void Game::BuildDescriptorHeaps()
 	
 }
 
-void Game::BuildShadersAndInputLayouts()
+void World::BuildShadersAndInputLayouts()
 {
 	const D3D_SHADER_MACRO defines[] =
 	{
@@ -708,7 +708,7 @@ void Game::BuildShadersAndInputLayouts()
 	};
 }
 
-void Game::UpdateGameObjects(const GameTimer& gt)
+void World::UpdateGameObjects(const GameTimer& gt)
 {
 	if (XMVectorGetX(mPlane->mPosition) > 1.8 || XMVectorGetX(mPlane->mPosition) < -1.8)
 	{
@@ -745,7 +745,7 @@ void Game::UpdateGameObjects(const GameTimer& gt)
 	mSceneGraph.update(gt, mAllRitems);
 }
 
-void Game::BuildGroundGeometry()
+void World::BuildGroundGeometry()
 {
 	GeometryGenerator geoGen;
 	GeometryGenerator::MeshData ground = geoGen.CreateBox(20, 0.2, 20, 1);
@@ -798,7 +798,7 @@ void Game::BuildGroundGeometry()
 
 
 
-void Game::BuildPSOs()
+void World::BuildPSOs()
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
 
@@ -898,7 +898,7 @@ void Game::BuildPSOs()
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&treeSpritePsoDesc, IID_PPV_ARGS(&mPSOs["treeSprites"])));
 }
 
-void Game::BuildFrameResources()
+void World::BuildFrameResources()
 {
 	for (int i = 0; i < gNumFrameResources; ++i)
 	{
@@ -907,7 +907,7 @@ void Game::BuildFrameResources()
 	}
 }
 
-void Game::BuildMaterials()
+void World::BuildMaterials()
 {
 	//GameWorld.buildMaterials(mMaterials);
 
@@ -948,7 +948,7 @@ void Game::BuildMaterials()
 }
 
 
-void Game::BuildRenderItems()
+void World::BuildRenderItems()
 {
 	//GameWorld.buildScene(mAllRitems, mMaterials, mTextures, mGeometries, mRitemLayer);
 
@@ -1074,7 +1074,7 @@ void Game::BuildRenderItems()
 
 }
 
-void Game::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
+void World::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
 {
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 	UINT matCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
@@ -1106,7 +1106,7 @@ void Game::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector
 	}
 }
 
-std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> Game::GetStaticSamplers()
+std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> World::GetStaticSamplers()
 {
 	// Applications usually only need a handful of samplers.  So just define them all up front
 	// and keep them available as part of the root signature.  

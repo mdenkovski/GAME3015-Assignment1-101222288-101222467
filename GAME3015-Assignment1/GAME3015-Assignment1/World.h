@@ -33,13 +33,13 @@ enum class RenderLayer : int
 	Count
 };
 
-class Game : public D3DApp
+class World : public D3DApp
 {
 public:
-	Game(HINSTANCE hInstance);
-	Game(const Game& rhs) = delete;
-	Game& operator=(const Game& rhs) = delete;
-	~Game();
+	World(HINSTANCE hInstance);
+	World(const World& rhs) = delete;
+	World& operator=(const World& rhs) = delete;
+	~World();
 
 	virtual bool Initialize()override;
 

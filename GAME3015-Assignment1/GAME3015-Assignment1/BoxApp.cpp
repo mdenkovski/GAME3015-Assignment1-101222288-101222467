@@ -27,13 +27,13 @@ struct ObjectConstants
     XMFLOAT4X4 WorldViewProj = MathHelper::Identity4x4();
 };
 
-class Game : public D3DApp
+class World : public D3DApp
 {
 public:
-	Game(HINSTANCE hInstance);
-    Game(const Game& rhs) = delete;
-    Game& operator=(const Game& rhs) = delete;
-	~Game();
+	World(HINSTANCE hInstance);
+    World(const World& rhs) = delete;
+    World& operator=(const World& rhs) = delete;
+	~World();
 
 	virtual bool Initialize()override;
 
@@ -90,7 +90,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
     try
     {
-        Game theApp(hInstance);
+        World theApp(hInstance);
         if(!theApp.Initialize())
             return 0;
 
@@ -103,16 +103,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
     }
 }
 
-Game::Game(HINSTANCE hInstance)
+World::World(HINSTANCE hInstance)
 : D3DApp(hInstance) 
 {
 }
 
-Game::~Game()
+World::~World()
 {
 }
 
-bool Game::Initialize()
+bool World::Initialize()
 {
     if(!D3DApp::Initialize())
 		return false;
@@ -143,7 +143,7 @@ bool Game::Initialize()
 	return true;
 }
 
-void Game::OnResize()
+void World::OnResize()
 {
 	D3DApp::OnResize();
 
@@ -152,7 +152,7 @@ void Game::OnResize()
     XMStoreFloat4x4(&mProj, P);
 }
 
-void Game::Update(const GameTimer& gt)
+void World::Update(const GameTimer& gt)
 {
     // Convert Spherical to Cartesian coordinates.
     float x = mRadius*sinf(mPhi)*cosf(mTheta);
@@ -177,7 +177,7 @@ void Game::Update(const GameTimer& gt)
     mObjectCB->CopyData(0, objConstants);
 }
 
-void Game::Draw(const GameTimer& gt)
+void World::Draw(const GameTimer& gt)
 {
     // Reuse the memory associated with command recording.
     // We can only reset when the associated command lists have finished execution on the GPU.
@@ -237,7 +237,7 @@ void Game::Draw(const GameTimer& gt)
 	FlushCommandQueue();
 }
 
-void Game::OnMouseDown(WPARAM btnState, int x, int y)
+void World::OnMouseDown(WPARAM btnState, int x, int y)
 {
     mLastMousePos.x = x;
     mLastMousePos.y = y;
@@ -245,12 +245,12 @@ void Game::OnMouseDown(WPARAM btnState, int x, int y)
     SetCapture(mhMainWnd);
 }
 
-void Game::OnMouseUp(WPARAM btnState, int x, int y)
+void World::OnMouseUp(WPARAM btnState, int x, int y)
 {
     ReleaseCapture();
 }
 
-void Game::OnMouseMove(WPARAM btnState, int x, int y)
+void World::OnMouseMove(WPARAM btnState, int x, int y)
 {
     if((btnState & MK_LBUTTON) != 0)
     {
@@ -282,7 +282,7 @@ void Game::OnMouseMove(WPARAM btnState, int x, int y)
     mLastMousePos.y = y;
 }
 
-void Game::BuildDescriptorHeaps()
+void World::BuildDescriptorHeaps()
 {
     D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
     cbvHeapDesc.NumDescriptors = 1;
@@ -293,7 +293,7 @@ void Game::BuildDescriptorHeaps()
         IID_PPV_ARGS(&mCbvHeap)));
 }
 
-void Game::BuildConstantBuffers()
+void World::BuildConstantBuffers()
 {
 	mObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(md3dDevice.Get(), 1, true);
 
@@ -313,7 +313,7 @@ void Game::BuildConstantBuffers()
 		mCbvHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
-void Game::BuildRootSignature()
+void World::BuildRootSignature()
 {
 	// Shader programs typically require resources as input (constant buffers,
 	// textures, samplers).  The root signature defines the resources the shader
@@ -352,7 +352,7 @@ void Game::BuildRootSignature()
 		IID_PPV_ARGS(&mRootSignature)));
 }
 
-void Game::BuildShadersAndInputLayout()
+void World::BuildShadersAndInputLayout()
 {
     HRESULT hr = S_OK;
     
@@ -366,7 +366,7 @@ void Game::BuildShadersAndInputLayout()
     };
 }
 
-void Game::BuildBoxGeometry()
+void World::BuildBoxGeometry()
 {
     std::array<Vertex, 8> vertices =
     {
@@ -438,7 +438,7 @@ void Game::BuildBoxGeometry()
 	mBoxGeo->DrawArgs["box"] = submesh;
 }
 
-void Game::BuildPSO()
+void World::BuildPSO()
 {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
     ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
