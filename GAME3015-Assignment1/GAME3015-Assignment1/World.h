@@ -6,7 +6,6 @@
 #include "../../Common/GeometryGenerator.h"
 #include "../../Common/Camera.h"
 #include "FrameResource.h"
-#include "Waves.h"
 #include "SceneNode.h"
 #include "World.h"
 #include <ctime>
