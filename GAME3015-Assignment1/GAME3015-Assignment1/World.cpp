@@ -428,9 +428,6 @@ void World::BuildDescriptorHeaps()
 	auto EagleTex = mTextures["EagleTex"]->Resource;
 	auto RaptorTex = mTextures["RaptorTex"]->Resource;
 
-	
-
-
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.Format = backgroundTex->GetDesc().Format;
@@ -450,8 +447,6 @@ void World::BuildDescriptorHeaps()
 
 	srvDesc.Format = RaptorTex->GetDesc().Format;
 	md3dDevice->CreateShaderResourceView(RaptorTex.Get(), &srvDesc, hDescriptor);
-
-	
 }
 
 void World::BuildShadersAndInputLayouts()
@@ -502,15 +497,8 @@ void World::UpdateGameObjects(const GameTimer& gt)
 	}
 
 	mPlane->update(gt, mAllRitems);
-	//mPlane->Update();
-
 	leftPlane->update(gt, mAllRitems);
-	//leftPlane->Update();
-
 	rightPlane->update(gt, mAllRitems);
-	//rightPlane->Update();
-
-
 	background.update(gt, mAllRitems);
 	background2.update(gt, mAllRitems);
 
@@ -563,7 +551,6 @@ void World::BuildGroundGeometry()
 	submesh.StartIndexLocation = 0;
 	submesh.BaseVertexLocation = 0;
 	
-
 	geo->DrawArgs["ground"] = submesh;
 
 	mGeometries[geo->Name] = std::move(geo);
