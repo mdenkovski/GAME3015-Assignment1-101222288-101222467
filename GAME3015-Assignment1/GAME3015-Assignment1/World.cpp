@@ -35,9 +35,6 @@ bool World::Initialize()
 	mCamera.SetPosition(0, 5, 0 );
 	mCamera.Pitch(3.14/2);
 
-	mWaves = std::make_unique<Waves>(40, 80, 0.25, 0.03f, 1.0, 0.2f);
-
-
 	//Step 1 Load the textures
 	LoadTextures();
 
@@ -74,11 +71,6 @@ bool World::Initialize()
 void World::OnResize()
 {
 	D3DApp::OnResize();
-
-	//// The window resized, so update the aspect ratio and recompute the projection matrix.
-	//XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
-	//XMStoreFloat4x4(&mProj, P);
-
 	mCamera.SetLens(0.25f*MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
 }
 
@@ -100,15 +92,10 @@ void World::Update(const GameTimer& gt)
 		WaitForSingleObject(eventHandle, INFINITE);
 		CloseHandle(eventHandle);
 	}
-
-	//AnimateMaterials(gt);
 	UpdateObjectCBs(gt);
 	UpdateMaterialCBs(gt);
 	UpdateMainPassCB(gt);
-
 	UpdateGameObjects(gt);
-	//GameWorld.update(gt, mAllRitems);
-
 }
 
 void World::Draw(const GameTimer& gt)
@@ -149,9 +136,6 @@ void World::Draw(const GameTimer& gt)
 
 	mCommandList->SetPipelineState(mPSOs["alphaTested"].Get());
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::AlphaTested]);
-
-	/*mCommandList->SetPipelineState(mPSOs["treeSprites"].Get());
-	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::AlphaTestedTreeSprites]);*/
 
 	mCommandList->SetPipelineState(mPSOs["transparent"].Get());
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Transparent]);
@@ -195,45 +179,15 @@ void World::OnMouseUp(WPARAM btnState, int x, int y)
 
 void World::OnMouseMove(WPARAM btnState, int x, int y)
 {
-	//if ((btnState & MK_LBUTTON) != 0)
-	//{
-	//	// Make each pixel correspond to a quarter of a degree.
-	//	float dx = XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x));
-	//	float dy = XMConvertToRadians(0.25f * static_cast<float>(y - mLastMousePos.y));
-
-	//	// Update angles based on input to orbit camera around box.
-	//	mTheta += dx;
-	//	mPhi += dy;
-
-	//	// Restrict the angle mPhi.
-	//	mPhi = MathHelper::Clamp(mPhi, 0.1f, MathHelper::Pi - 0.1f);
-	//}
-	//else if ((btnState & MK_RBUTTON) != 0)
-	//{
-	//	// Make each pixel correspond to 0.2 unit in the scene.
-	//	float dx = 0.2f * static_cast<float>(x - mLastMousePos.x);
-	//	float dy = 0.2f * static_cast<float>(y - mLastMousePos.y);
-
-	//	// Update the camera radius based on input.
-	//	mRadius += dx - dy;
-
-	//	// Restrict the radius.
-	//	mRadius = MathHelper::Clamp(mRadius, 5.0f, 150.0f);
-	//}
-
-	//mLastMousePos.x = x;
-	//mLastMousePos.y = y;
-
 	if ((btnState & MK_LBUTTON) != 0)
 	{
 		// Make each pixel correspond to a quarter of a degree.
-		float dx = XMConvertToRadians(0.25f*static_cast<float>(x - mLastMousePos.x));
-		float dy = XMConvertToRadians(0.25f*static_cast<float>(y - mLastMousePos.y));
+		float dx = XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x));
+		float dy = XMConvertToRadians(0.25f * static_cast<float>(y - mLastMousePos.y));
 
 		mCamera.Pitch(dy);
 		mCamera.RotateY(dx);
 	}
-
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
 }
@@ -252,57 +206,17 @@ void World::OnKeyboardInput(const GameTimer& gt)
 	if (GetAsyncKeyState('W') & 0x8000)
 	{
 		bool hit = false;
-		for (auto box : mBoundingBoxes)
-		{
-			if (box.Intersects(mCamera.GetPosition(), mCamera.GetLook(), tmin))
-			{
-				if (tmin < buffer)
-				{
-					hit = true;
-				}
-			}
-		}
-		for (auto sphere : mBoundingSpheres)
-		{
-			if (sphere.Intersects(mCamera.GetPosition(), mCamera.GetLook(), tmin))
-			{
-				if (tmin < buffer)
-				{
-					hit = true;
-				}
-			}
-		}
+		
 		if (!hit)
 		{
 				mCamera.Walk(10.0f*dt);
 			
 		}
-		
 	}
 
 	if (GetAsyncKeyState('S') & 0x8000)
 	{
 		bool hit = false;
-		for (auto box : mBoundingBoxes)
-		{
-			if (box.Intersects(mCamera.GetPosition(), XMVectorMultiply( mCamera.GetLook(), opposite), tmin))
-			{
-				if (tmin < buffer)
-				{
-					hit = true;
-				}
-			}
-		}
-		for (auto sphere : mBoundingSpheres)
-		{
-			if (sphere.Intersects(mCamera.GetPosition(), mCamera.GetLook(), tmin))
-			{
-				if (tmin < buffer)
-				{
-					hit = true;
-				}
-			}
-		}
 		if (!hit)
 		{
 			mCamera.Walk(-10.0f*dt);
@@ -312,26 +226,6 @@ void World::OnKeyboardInput(const GameTimer& gt)
 	if (GetAsyncKeyState('A') & 0x8000)
 	{
 		bool hit = false;
-		for (auto box : mBoundingBoxes)
-		{
-			if (box.Intersects(mCamera.GetPosition(), XMVectorMultiply(mCamera.GetRight(), opposite), tmin))
-			{
-				if (tmin < buffer)
-				{
-					hit = true;
-				}
-			}
-		}
-		for (auto sphere : mBoundingSpheres)
-		{
-			if (sphere.Intersects(mCamera.GetPosition(), mCamera.GetLook(), tmin))
-			{
-				if (tmin < buffer)
-				{
-					hit = true;
-				}
-			}
-		}
 		if (!hit)
 		{
 			mCamera.Strafe(-10.0f*dt);
@@ -339,31 +233,9 @@ void World::OnKeyboardInput(const GameTimer& gt)
 		
 		
 	}
-		
-
 	if (GetAsyncKeyState('D') & 0x8000)
 	{
 		bool hit = false;
-		for (auto box : mBoundingBoxes)
-		{
-			if (box.Intersects(mCamera.GetPosition(), mCamera.GetRight(), tmin))
-			{
-				if (tmin < buffer)
-				{
-					hit = true;
-				}
-			}
-		}
-		for (auto sphere : mBoundingSpheres)
-		{
-			if (sphere.Intersects(mCamera.GetPosition(), mCamera.GetLook(), tmin))
-			{
-				if (tmin < buffer)
-				{
-					hit = true;
-				}
-			}
-		}
 		if (!hit)
 		{
 			mCamera.Strafe(10.0f*dt);
@@ -372,48 +244,7 @@ void World::OnKeyboardInput(const GameTimer& gt)
 		
 
 	mCamera.UpdateViewMatrix();
-	//mCamera.SetPositionY(0.3 * scaleFactor);
 }
-//
-//void Game::UpdateCamera(const GameTimer& gt)
-//{
-//	// Convert Spherical to Cartesian coordinates.
-//	mEyePos.x = mRadius * sinf(mPhi) * cosf(mTheta);
-//	mEyePos.z = mRadius * sinf(mPhi) * sinf(mTheta);
-//	mEyePos.y = mRadius * cosf(mPhi);
-//
-//	// Build the view matrix.
-//	XMVECTOR pos = XMVectorSet(mEyePos.x, mEyePos.y, mEyePos.z, 1.0f);
-//	XMVECTOR target = XMVectorZero();
-//	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-//
-//	XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
-//	XMStoreFloat4x4(&mView, view);
-//}
-
-//void Game::AnimateMaterials(const GameTimer& gt)
-//{
-//	// Scroll the water material texture coordinates.
-//	auto waterMat = mMaterials["water"].get();
-//
-//	float& tu = waterMat->MatTransform(3, 0);
-//	float& tv = waterMat->MatTransform(3, 1);
-//
-//	tu += 0.1f * gt.DeltaTime();
-//	tv += 0.02f * gt.DeltaTime();
-//
-//	if (tu >= 1.0f)
-//		tu -= 1.0f;
-//
-//	if (tv >= 1.0f)
-//		tv -= 1.0f;
-//
-//	waterMat->MatTransform(3, 0) = tu;
-//	waterMat->MatTransform(3, 1) = tv;
-//
-//	// Material has changed, so need to update cbuffer.
-//	waterMat->NumFramesDirty = gNumFrameResources;
-//}
 
 void World::UpdateObjectCBs(const GameTimer& gt)
 {
@@ -505,54 +336,6 @@ void World::UpdateMainPassCB(const GameTimer& gt)
 
 	auto currPassCB = mCurrFrameResource->PassCB.get();
 	currPassCB->CopyData(0, mMainPassCB);
-}
-
-void World::MoveGameObjects(const GameTimer& gt)
-{
-	//GameWorld.update(gt, mAllRitems);
-
-	////check if plane is at edge
-	//if (XMVectorGetX(plane.position) > 1.8 || XMVectorGetX(plane.position) < -1.8 )
-	//{
-	//	plane.velocity *= -1;
-	//	leftPlane.velocity *= -1;
-	//	rightPlane.velocity *= -1;
-	//}
-
-	
-
-	////move the main plane
-	//XMVECTOR displacement = plane.velocity * gt.DeltaTime();
-	//plane.position = XMVectorAdd(plane.position, displacement);
-	//plane.renderItem = std::move(mAllRitems[plane.renderIndex]);
-	//plane.renderItem->NumFramesDirty = 1;
-	//XMStoreFloat4x4(&plane.renderItem->World, XMMatrixScaling(0.01f , 0.01f , 0.01f ) * XMMatrixTranslationFromVector(plane.position));
-	//mAllRitems[plane.renderIndex] = std::move(plane.renderItem);
-
-	////move the supporting planes
-	//displacement = leftPlane.velocity * gt.DeltaTime(); 
-	//leftPlane.position = XMVectorAdd(leftPlane.position, displacement);
-	//leftPlane.renderItem = std::move(mAllRitems[leftPlane.renderIndex]);
-	//leftPlane.renderItem->NumFramesDirty = 1;
-	//XMStoreFloat4x4(&leftPlane.renderItem->World, XMMatrixScaling(0.01f, 0.01f , 0.01f ) * XMMatrixTranslationFromVector(leftPlane.position));
-	//mAllRitems[leftPlane.renderIndex] = std::move(leftPlane.renderItem);
-
-	//displacement = rightPlane.velocity * gt.DeltaTime();
-	//rightPlane.position = XMVectorAdd(rightPlane.position, displacement);
-	//rightPlane.renderItem = std::move(mAllRitems[rightPlane.renderIndex]);
-	//rightPlane.renderItem->NumFramesDirty = 1;
-	//XMStoreFloat4x4(&rightPlane.renderItem->World, XMMatrixScaling(0.01f , 0.01f, 0.01f) * XMMatrixTranslationFromVector(rightPlane.position));
-	//mAllRitems[rightPlane.renderIndex] = std::move(rightPlane.renderItem);
-
-	////move the background down
-	//displacement = background.velocity * gt.DeltaTime();
-	//background.position = XMVectorAdd(background.position, displacement);
-	//background.renderItem = std::move(mAllRitems[background.renderIndex]);
-	//background.renderItem->NumFramesDirty = 1;
-	//XMStoreFloat4x4(&background.renderItem->World, XMMatrixScaling(1.0f , 1.0f , 1.0f ) * XMMatrixTranslationFromVector(background.position));
-	//mAllRitems[background.renderIndex] = std::move(background.renderItem);
-
-	
 }
 
 void World::LoadTextures()
@@ -690,10 +473,6 @@ void World::BuildShadersAndInputLayouts()
 	mShaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", defines, "PS", "ps_5_1");
 	mShaders["alphaTestedPS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", alphaTestDefines, "PS", "ps_5_1");
 
-	mShaders["treeSpriteVS"] = d3dUtil::CompileShader(L"Shaders\\TreeSprite.hlsl", nullptr, "VS", "vs_5_1");
-	mShaders["treeSpriteGS"] = d3dUtil::CompileShader(L"Shaders\\TreeSprite.hlsl", nullptr, "GS", "gs_5_1");
-	mShaders["treeSpritePS"] = d3dUtil::CompileShader(L"Shaders\\TreeSprite.hlsl", alphaTestDefines, "PS", "ps_5_1");
-
 	mStdInputLayout =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -701,11 +480,6 @@ void World::BuildShadersAndInputLayouts()
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 	};
 
-	mTreeSpriteInputLayout =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-	};
 }
 
 void World::UpdateGameObjects(const GameTimer& gt)
@@ -739,7 +513,6 @@ void World::UpdateGameObjects(const GameTimer& gt)
 
 	background.update(gt, mAllRitems);
 	background2.update(gt, mAllRitems);
-
 
 	// Apply movements
 	mSceneGraph.update(gt, mAllRitems);
@@ -870,32 +643,6 @@ void World::BuildPSOs()
 	};
 	alphaTestedPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&alphaTestedPsoDesc, IID_PPV_ARGS(&mPSOs["alphaTested"])));
-
-	////
-	//// PSO for tree sprites
-	////
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC treeSpritePsoDesc = opaquePsoDesc;
-	treeSpritePsoDesc.VS =
-	{
-		reinterpret_cast<BYTE*>(mShaders["treeSpriteVS"]->GetBufferPointer()),
-		mShaders["treeSpriteVS"]->GetBufferSize()
-	};
-	treeSpritePsoDesc.GS =
-	{
-		reinterpret_cast<BYTE*>(mShaders["treeSpriteGS"]->GetBufferPointer()),
-		mShaders["treeSpriteGS"]->GetBufferSize()
-	};
-	treeSpritePsoDesc.PS =
-	{
-		reinterpret_cast<BYTE*>(mShaders["treeSpritePS"]->GetBufferPointer()),
-		mShaders["treeSpritePS"]->GetBufferSize()
-	};
-	//step1
-	treeSpritePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-	treeSpritePsoDesc.InputLayout = { mTreeSpriteInputLayout.data(), (UINT)mTreeSpriteInputLayout.size() };
-	treeSpritePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-
-	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&treeSpritePsoDesc, IID_PPV_ARGS(&mPSOs["treeSprites"])));
 }
 
 void World::BuildFrameResources()
@@ -903,7 +650,7 @@ void World::BuildFrameResources()
 	for (int i = 0; i < gNumFrameResources; ++i)
 	{
 		mFrameResources.push_back(std::make_unique<FrameResource>(md3dDevice.Get(),
-			1, (UINT)mAllRitems.size(), (UINT)mMaterials.size(), mWaves->VertexCount()));
+			1, (UINT)mAllRitems.size(), (UINT)mMaterials.size()));
 	}
 }
 
@@ -950,9 +697,6 @@ void World::BuildMaterials()
 
 void World::BuildRenderItems()
 {
-	//GameWorld.buildScene(mAllRitems, mMaterials, mTextures, mGeometries, mRitemLayer);
-
-
 	UINT objCBIndex = 0;
 
 	// Initialize the different layers
@@ -963,8 +707,6 @@ void World::BuildRenderItems()
 
 		mSceneGraph.attachChild(std::move(layer));
 	}
-
-
 
 	background.renderItem = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&background.renderItem->World, XMMatrixScaling(1.0f, 1.0f, 1.0f) * XMMatrixTranslation(0.0f, 0, 0));/// can choose your scaling here
@@ -1003,9 +745,6 @@ void World::BuildRenderItems()
 	mRitemLayer[(int)RenderLayer::Opaque].push_back(background2.renderItem.get());
 	mAllRitems.push_back(std::move(background2.renderItem));
 	background2.renderIndex = mAllRitems.size() - 1;
-
-
-
 
 	//make the main plane
 	mPlane = new Aircraft(Aircraft::Raptor);
