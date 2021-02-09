@@ -10,26 +10,26 @@
 #include "SceneNode.h"
 #include "World.h"
 #include <ctime>
-#include "Aircraft.h"
+//#include "Aircraft.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
-//#pragma comment(lib, "d3dcompiler.lib")
-//#pragma comment(lib, "D3D12.lib")
+#pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "D3D12.lib")
 
 
 
 
 
-struct GameObject
-{
-	XMVECTOR position;
-	XMVECTOR velocity;
-	std::unique_ptr<RenderItem> renderItem;
-	int renderIndex;
-};
+//struct GameObject
+//{
+//	XMVECTOR position;
+//	XMVECTOR velocity;
+//	std::unique_ptr<RenderItem> renderItem;
+//	int renderIndex;
+//};
 
 class Game : public D3DApp
 {
