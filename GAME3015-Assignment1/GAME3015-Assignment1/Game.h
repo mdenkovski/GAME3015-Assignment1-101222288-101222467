@@ -55,22 +55,15 @@ private:
 
 	void OnKeyboardInput(const GameTimer& gt);
 	//void UpdateCamera(const GameTimer& gt);
-	void AnimateMaterials(const GameTimer& gt);
 	void UpdateObjectCBs(const GameTimer& gt);
 	void UpdateMaterialCBs(const GameTimer& gt);
 	void UpdateMainPassCB(const GameTimer& gt);
-	void UpdateWaves(const GameTimer& gt);
-
-	void MoveGameObjects(const GameTimer& gt);
-
+	//void MoveGameObjects(const GameTimer& gt);
 	void LoadTextures();
 	void BuildRootSignature();
 	void BuildDescriptorHeaps();
 	void BuildShadersAndInputLayouts();
-
 	void BuildGroundGeometry();
-
-
 	void BuildPSOs();
 	void BuildFrameResources();
 	void BuildMaterials();
@@ -102,8 +95,7 @@ private:
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> mStdInputLayout;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> mTreeSpriteInputLayout;
-
-	RenderItem* mWavesRitem = nullptr;
+	//RenderItem* mWavesRitem = nullptr;
 
 	// List of all the render items.
 	std::vector<std::unique_ptr<RenderItem>> mAllRitems;
@@ -116,20 +108,7 @@ private:
 	std::unique_ptr<Waves> mWaves;
 
 	PassConstants mMainPassCB;
-
-	/*XMFLOAT3 mEyePos = { 0.0f, 0.0f, 0.0f };
-	XMFLOAT4X4 mView = MathHelper::Identity4x4();
-	XMFLOAT4X4 mProj = MathHelper::Identity4x4();
-
-	float mTheta = 1.5f * XM_PI;
-	float mPhi = XM_PIDIV2 - 0.1f;
-	float mRadius = 20.0f;*/
-
-
 	Camera mCamera;
-
 	POINT mLastMousePos;
-
-
 	World GameWorld;
 };

@@ -26,7 +26,6 @@ void World::update(GameTimer dt, std::vector<std::unique_ptr<RenderItem>>& rende
 		leftPlane->mVelocity *= -1;
 		rightPlane->mVelocity *= -1;
 	}
-
 	if (XMVectorGetZ(background.mPosition) < -12)
 	{
 		background.mPosition = { XMVectorGetX(background.mPosition) , XMVectorGetY(background.mPosition) , 12 };
@@ -39,23 +38,15 @@ void World::update(GameTimer dt, std::vector<std::unique_ptr<RenderItem>>& rende
 
 	mPlane->update(dt, renderList);
 	//mPlane->Update();
-
 	leftPlane->update(dt, renderList);
 	//leftPlane->Update();
-
 	rightPlane->update(dt, renderList);
 	//rightPlane->Update();
-
-
 	background.update(dt, renderList);
 	background2.update(dt, renderList);
-	
-
 	// Apply movements
 	mSceneGraph.update(dt, renderList);
 }
-
-
 
 void World::draw()
 {
@@ -99,8 +90,6 @@ void World::buildMaterials(std::unordered_map<std::string, std::unique_ptr<Mater
 	BackgroundTex->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	BackgroundTex->Roughness = 0.125f;
 
-
-
 	auto Eagle = std::make_unique<Material>();
 	Eagle->Name = "Eagle";
 	Eagle->MatCBIndex = matIndex;
@@ -116,8 +105,6 @@ void World::buildMaterials(std::unordered_map<std::string, std::unique_ptr<Mater
 	Raptor->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	Raptor->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	Raptor->Roughness = 0.125f;
-
-
 
 	Materials["BackgroundTex"] = std::move(BackgroundTex);
 	Materials["EagleTex"] = std::move(Eagle);
@@ -139,8 +126,6 @@ void World::buildScene(std::vector<std::unique_ptr<RenderItem>>& renderList, std
 
 		mSceneGraph.attachChild(std::move(layer));
 	}
-
-
 
 	background.renderItem = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&background.renderItem->World, XMMatrixScaling(1.0f, 1.0f, 1.0f) * XMMatrixTranslation(0.0f, 0, 0));/// can choose your scaling here
@@ -179,9 +164,6 @@ void World::buildScene(std::vector<std::unique_ptr<RenderItem>>& renderList, std
 	RitemLayer[(int)RenderLayer::Opaque].push_back(background2.renderItem.get());
 	renderList.push_back(std::move(background2.renderItem));
 	background2.renderIndex = renderList.size() - 1;
-
-
-
 	
 	//make the main plane
 	mPlane = new Aircraft(Aircraft::Raptor);
@@ -225,7 +207,6 @@ void World::buildScene(std::vector<std::unique_ptr<RenderItem>>& renderList, std
 	RitemLayer[(int)RenderLayer::AlphaTested].push_back(leftPlane->renderItem.get());
 	renderList.push_back(std::move(leftPlane->renderItem));
 	leftPlane->renderIndex = renderList.size() - 1;
-
 
 	//make the right plane
 	rightPlane = new Aircraft(Aircraft::Eagle);

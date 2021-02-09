@@ -23,5 +23,4 @@ void Entity::updateCurrent(GameTimer dt, std::vector<std::unique_ptr<RenderItem>
 	renderItem->NumFramesDirty = 1;
 	XMStoreFloat4x4(&renderItem->World, XMMatrixScaling(XMVectorGetX(Scale), XMVectorGetY(Scale), XMVectorGetZ(Scale)) * XMMatrixTranslationFromVector(mPosition));
 	renderList[renderIndex] = std::move(renderItem);
-
 }
