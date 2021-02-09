@@ -106,7 +106,8 @@ void Game::Update(const GameTimer& gt)
 	UpdateMaterialCBs(gt);
 	UpdateMainPassCB(gt);
 
-	GameWorld.update(gt, mAllRitems);
+	UpdateGameObjects(gt);
+	//GameWorld.update(gt, mAllRitems);
 
 }
 
@@ -556,7 +557,30 @@ void Game::MoveGameObjects(const GameTimer& gt)
 
 void Game::LoadTextures()
 {
-	GameWorld.loadTextures(mTextures, md3dDevice, mCommandList);
+
+	auto backgroundTex = std::make_unique<Texture>();
+	backgroundTex->Name = "BackgroundTex";
+	backgroundTex->Filename = L"../../Textures/Desert.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), backgroundTex->Filename.c_str(),
+		backgroundTex->Resource, backgroundTex->UploadHeap));
+	mTextures[backgroundTex->Name] = std::move(backgroundTex);
+
+	auto EagleTex = std::make_unique<Texture>();
+	EagleTex->Name = "EagleTex";
+	EagleTex->Filename = L"../../Textures/Eagle.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), EagleTex->Filename.c_str(),
+		EagleTex->Resource, EagleTex->UploadHeap));
+	mTextures[EagleTex->Name] = std::move(EagleTex);
+
+	auto RaptorTex = std::make_unique<Texture>();
+	RaptorTex->Name = "RaptorTex";
+	RaptorTex->Filename = L"../../Textures/Raptor.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), RaptorTex->Filename.c_str(),
+		RaptorTex->Resource, RaptorTex->UploadHeap));
+	mTextures[RaptorTex->Name] = std::move(RaptorTex);
 
 	
 }
@@ -682,6 +706,43 @@ void Game::BuildShadersAndInputLayouts()
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 	};
+}
+
+void Game::UpdateGameObjects(const GameTimer& gt)
+{
+	if (XMVectorGetX(mPlane->mPosition) > 1.8 || XMVectorGetX(mPlane->mPosition) < -1.8)
+	{
+		mPlane->mVelocity *= -1;
+		leftPlane->mVelocity *= -1;
+		rightPlane->mVelocity *= -1;
+	}
+
+	if (XMVectorGetZ(background.mPosition) < -12)
+	{
+		background.mPosition = { XMVectorGetX(background.mPosition) , XMVectorGetY(background.mPosition) , 12 };
+	}
+
+	if (XMVectorGetZ(background2.mPosition) < -12)
+	{
+		background2.mPosition = { XMVectorGetX(background2.mPosition) , XMVectorGetY(background2.mPosition) , 12 };
+	}
+
+	mPlane->update(gt, mAllRitems);
+	//mPlane->Update();
+
+	leftPlane->update(gt, mAllRitems);
+	//leftPlane->Update();
+
+	rightPlane->update(gt, mAllRitems);
+	//rightPlane->Update();
+
+
+	background.update(gt, mAllRitems);
+	background2.update(gt, mAllRitems);
+
+
+	// Apply movements
+	mSceneGraph.update(gt, mAllRitems);
 }
 
 void Game::BuildGroundGeometry()
@@ -848,9 +909,9 @@ void Game::BuildFrameResources()
 
 void Game::BuildMaterials()
 {
-	GameWorld.buildMaterials(mMaterials);
+	//GameWorld.buildMaterials(mMaterials);
 
-	/*int matIndex = 0;
+	int matIndex = 0;
 	auto BackgroundTex = std::make_unique<Material>();
 	BackgroundTex->Name = "BackgroundTex";
 	BackgroundTex->MatCBIndex = matIndex;
@@ -881,7 +942,7 @@ void Game::BuildMaterials()
 
 	mMaterials["BackgroundTex"] = std::move(BackgroundTex);
 	mMaterials["EagleTex"] = std::move(Eagle);
-	mMaterials["RaptorTex"] = std::move(Raptor);*/
+	mMaterials["RaptorTex"] = std::move(Raptor);
 	
 
 }
@@ -889,8 +950,127 @@ void Game::BuildMaterials()
 
 void Game::BuildRenderItems()
 {
-	GameWorld.buildScene(mAllRitems, mMaterials, mTextures, mGeometries, mRitemLayer);
+	//GameWorld.buildScene(mAllRitems, mMaterials, mTextures, mGeometries, mRitemLayer);
 
+
+	UINT objCBIndex = 0;
+
+	// Initialize the different layers
+	for (std::size_t i = 0; i < LayerCount; ++i)
+	{
+		SceneNode::Ptr layer(new SceneNode());
+		mSceneLayers[i] = layer.get();
+
+		mSceneGraph.attachChild(std::move(layer));
+	}
+
+
+
+	background.renderItem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&background.renderItem->World, XMMatrixScaling(1.0f, 1.0f, 1.0f) * XMMatrixTranslation(0.0f, 0, 0));/// can choose your scaling here
+	XMStoreFloat4x4(&background.renderItem->TexTransform, XMMatrixScaling(10.0f, 10.0f, 10.0f));
+	XMVECTOR spawnpointBackground = { 0, 0, 0 };
+	background.mPosition = spawnpointBackground;
+	background.mVelocity = { 0.0f, 0.0f, -0.5f };
+	background.Scale = { 1.0f, 1.0f, 1.0f };
+	background.renderItem->ObjCBIndex = objCBIndex++;
+	background.renderItem->Mat = mMaterials["BackgroundTex"].get();
+	background.renderItem->Geo = mGeometries["groundGeo"].get();
+	background.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	background.renderItem->IndexCount = background.renderItem->Geo->DrawArgs["ground"].IndexCount;
+	background.renderItem->StartIndexLocation = background.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	background.renderItem->BaseVertexLocation = background.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
+
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(background.renderItem.get());
+	mAllRitems.push_back(std::move(background.renderItem));
+	background.renderIndex = mAllRitems.size() - 1;
+
+	background2.renderItem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&background2.renderItem->World, XMMatrixScaling(1.0f, 1.0f, 1.0f) * XMMatrixTranslation(0.0f, 0, 12));/// can choose your scaling here
+	XMStoreFloat4x4(&background2.renderItem->TexTransform, XMMatrixScaling(10.0f, 10.0f, 10.0f));
+	XMVECTOR spawnpointbackground2 = { 0, 0, 12 };
+	background2.mPosition = spawnpointbackground2;
+	background2.mVelocity = { 0.0f, 0.0f, -0.5f };
+	background2.Scale = { 1.0f, 1.0f, 1.0f };
+	background2.renderItem->ObjCBIndex = objCBIndex++;
+	background2.renderItem->Mat = mMaterials["BackgroundTex"].get();
+	background2.renderItem->Geo = mGeometries["groundGeo"].get();
+	background2.renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	background2.renderItem->IndexCount = background2.renderItem->Geo->DrawArgs["ground"].IndexCount;
+	background2.renderItem->StartIndexLocation = background2.renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	background2.renderItem->BaseVertexLocation = background2.renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
+
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(background2.renderItem.get());
+	mAllRitems.push_back(std::move(background2.renderItem));
+	background2.renderIndex = mAllRitems.size() - 1;
+
+
+
+
+	//make the main plane
+	mPlane = new Aircraft(Aircraft::Raptor);
+	mPlane->renderItem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&mPlane->renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(-1.0f, 1, -1));/// can choose your scaling here
+	XMVECTOR spawnpoint = { -1.0f , 1 , -1 };
+	mPlane->mPosition = spawnpoint;
+	mPlane->mVelocity = { 0.5f, 0.0f, 0.0f };
+	mPlane->Scale = { 0.01f, 0.01f, 0.01f };
+	//XMStorevector(&mPlane->position, spawnpoint);
+	XMStoreFloat4x4(&mPlane->renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	mPlane->renderItem->ObjCBIndex = objCBIndex++;
+	mPlane->renderItem->Mat = mMaterials["RaptorTex"].get();
+	mPlane->renderItem->Geo = mGeometries["groundGeo"].get();
+	mPlane->renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	mPlane->renderItem->IndexCount = mPlane->renderItem->Geo->DrawArgs["ground"].IndexCount;
+	mPlane->renderItem->StartIndexLocation = mPlane->renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	mPlane->renderItem->BaseVertexLocation = mPlane->renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
+
+	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(mPlane->renderItem.get());
+	mAllRitems.push_back(std::move(mPlane->renderItem));
+	mPlane->renderIndex = mAllRitems.size() - 1;
+
+	//make the left plane
+	leftPlane = new Aircraft(Aircraft::Eagle);
+	leftPlane->renderItem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&leftPlane->renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(-1.25f, 1, -1.25));/// can choose your scaling here
+	spawnpoint = { -1.25f , 1.0f , -1.25f };
+	leftPlane->mPosition = spawnpoint;
+	leftPlane->mVelocity = { 0.5f, 0.0f, 0.0f };
+	leftPlane->Scale = { 0.01f, 0.01f, 0.01f };
+	XMStoreFloat4x4(&leftPlane->renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	leftPlane->renderItem->ObjCBIndex = objCBIndex++;
+	leftPlane->renderItem->Mat = mMaterials["EagleTex"].get();
+	leftPlane->renderItem->Geo = mGeometries["groundGeo"].get();
+	leftPlane->renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	leftPlane->renderItem->IndexCount = leftPlane->renderItem->Geo->DrawArgs["ground"].IndexCount;
+	leftPlane->renderItem->StartIndexLocation = leftPlane->renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	leftPlane->renderItem->BaseVertexLocation = leftPlane->renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
+
+	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(leftPlane->renderItem.get());
+	mAllRitems.push_back(std::move(leftPlane->renderItem));
+	leftPlane->renderIndex = mAllRitems.size() - 1;
+
+
+	//make the right plane
+	rightPlane = new Aircraft(Aircraft::Eagle);
+	rightPlane->renderItem = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&rightPlane->renderItem->World, XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(-0.75f, 1, -1.25));/// can choose your scaling here
+	spawnpoint = { -0.75f , 1.0f , -1.25f };
+	rightPlane->mPosition = spawnpoint;
+	rightPlane->mVelocity = { 0.5f, 0.0f, 0.0f };
+	rightPlane->Scale = { 0.01f, 0.01f, 0.01f };
+	XMStoreFloat4x4(&rightPlane->renderItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	rightPlane->renderItem->ObjCBIndex = objCBIndex++;
+	rightPlane->renderItem->Mat = mMaterials["EagleTex"].get();
+	rightPlane->renderItem->Geo = mGeometries["groundGeo"].get();
+	rightPlane->renderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	rightPlane->renderItem->IndexCount = rightPlane->renderItem->Geo->DrawArgs["ground"].IndexCount;
+	rightPlane->renderItem->StartIndexLocation = rightPlane->renderItem->Geo->DrawArgs["ground"].StartIndexLocation;
+	rightPlane->renderItem->BaseVertexLocation = rightPlane->renderItem->Geo->DrawArgs["ground"].BaseVertexLocation;
+
+	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(rightPlane->renderItem.get());
+	mAllRitems.push_back(std::move(rightPlane->renderItem));
+	rightPlane->renderIndex = mAllRitems.size() - 1;
 
 }
 
@@ -983,23 +1163,6 @@ std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> Game::GetStaticSamplers()
 		anisotropicWrap, anisotropicClamp };
 }
 
-float Game::GetHillsHeight(float x, float z)const
-{
-	return 0.3f * (z * sinf(0.1f * x) + x * cosf(0.1f * z));
-}
 
-XMFLOAT3 Game::GetHillsNormal(float x, float z)const
-{
-	// n = (-df/dx, 1, -df/dz)
-	XMFLOAT3 n(
-		-0.03f * z * cosf(0.1f * x) - 0.3f * cosf(0.1f * z),
-		1.0f,
-		-0.3f * sinf(0.1f * x) + 0.03f * x * sinf(0.1f * z));
-
-	XMVECTOR unitNormal = XMVector3Normalize(XMLoadFloat3(&n));
-	XMStoreFloat3(&n, unitNormal);
-
-	return n;
-}
 
 

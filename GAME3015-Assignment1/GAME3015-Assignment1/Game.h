@@ -10,7 +10,8 @@
 #include "SceneNode.h"
 #include "World.h"
 #include <ctime>
-//#include "Aircraft.h"
+#include "Aircraft.h"
+#include <vector>
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -23,13 +24,14 @@ using namespace DirectX::PackedVector;
 
 
 
-//struct GameObject
-//{
-//	XMVECTOR position;
-//	XMVECTOR velocity;
-//	std::unique_ptr<RenderItem> renderItem;
-//	int renderIndex;
-//};
+enum class RenderLayer : int
+{
+	Opaque = 0,
+	Transparent,
+	AlphaTested,
+	AlphaTestedTreeSprites,
+	Count
+};
 
 class Game : public D3DApp
 {
@@ -41,8 +43,7 @@ public:
 
 	virtual bool Initialize()override;
 
-	int Start(HINSTANCE hInstance, HINSTANCE prevInstance,
-		PSTR cmdLine, int showCmd);
+	
 
 private:
 	virtual void OnResize()override;
@@ -55,11 +56,9 @@ private:
 
 	void OnKeyboardInput(const GameTimer& gt);
 	//void UpdateCamera(const GameTimer& gt);
-	void AnimateMaterials(const GameTimer& gt);
 	void UpdateObjectCBs(const GameTimer& gt);
 	void UpdateMaterialCBs(const GameTimer& gt);
 	void UpdateMainPassCB(const GameTimer& gt);
-	void UpdateWaves(const GameTimer& gt);
 
 	void MoveGameObjects(const GameTimer& gt);
 
@@ -68,6 +67,7 @@ private:
 	void BuildDescriptorHeaps();
 	void BuildShadersAndInputLayouts();
 
+	void UpdateGameObjects(const GameTimer& gt);
 	void BuildGroundGeometry();
 
 
@@ -79,10 +79,16 @@ private:
 
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 
-	float GetHillsHeight(float x, float z)const;
-	XMFLOAT3 GetHillsNormal(float x, float z)const;
+	
 
 private:
+
+	enum Layer
+	{
+		Background,
+		Air,
+		LayerCount
+	};
 
 	std::vector<std::unique_ptr<FrameResource>> mFrameResources;
 	FrameResource* mCurrFrameResource = nullptr;
@@ -130,6 +136,18 @@ private:
 
 	POINT mLastMousePos;
 
+	SceneNode							mSceneGraph;
+	std::array<SceneNode*, LayerCount>	mSceneLayers;
 
-	World GameWorld;
+	XMFLOAT4					mWorldBounds;
+	XMVECTOR						mSpawnPosition;
+	float								mScrollSpeed;
+	Aircraft* mPlane;
+	Aircraft* leftPlane;
+	Aircraft* rightPlane;
+	Entity background;
+	Entity background2;
+
+
+	//World GameWorld;
 };
