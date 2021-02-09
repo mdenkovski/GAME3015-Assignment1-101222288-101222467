@@ -1,5 +1,5 @@
 
-#include "World.h"
+#include "Game.h"
 
 
 //#pragma comment(lib, "d3dcompiler.lib")
@@ -15,7 +15,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 	try
 	{
-		World theApp(hInstance);
+		Game theApp(hInstance);
 		if (!theApp.Initialize())
 			return 0;
 
